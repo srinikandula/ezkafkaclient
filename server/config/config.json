@@ -1,0 +1,8 @@
+{
+  "mongo": {
+    "url": "mongodb://localhost/easygaadi"
+  },
+  "port": 7000,
+  "bodyParserLimit": "50mb",
+  "googleSecretKeyLimit": 3
+}
