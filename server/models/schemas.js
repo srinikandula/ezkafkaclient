@@ -622,7 +622,7 @@ module.exports = {
     OtpColl: mongoose.model('otps', otpSchema, 'otps'),
     NotificationColl: mongoose.model('notifications', notificationsSchema, 'notifications'),
     ErpSettingsColl: mongoose.model('erpsettings', erpSettingsSchema, 'erpsettings'),
-    GpsColl: mongoose.model('devicePositions1', devicePositions, 'devicePositions1'),
+    GpsColl: mongoose.model('devicePositions', devicePositions, 'devicePositions'),
     archivedDevicePositionsColl: mongoose.model('archivedDevicePositions', archivedDevicePositions, 'archivedDevicePositions'),
     SecretKeysColl: mongoose.model('secretKeys', secretKeys, 'secretKeys'),
     SecretKeyCounterColl: mongoose.model('secretKeyCounter', secretKeysCounter, 'secretKeyCounter'),
