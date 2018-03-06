@@ -23,7 +23,7 @@ var accountSchema = new mongoose.Schema({
     userName: { // name of the account is called accountId
         type: String,
         index: true,
-        unique: true
+        // unique: true
     },
     contactPhone: Number,
     password: String,

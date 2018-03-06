@@ -2,6 +2,7 @@
 var nodeGeocoder = require('node-geocoder');
 var config = require('./../config/config');
 var async = require('async');
+var request = require('request');
 
 var GpsColl = require('./../models/schemas').GpsColl;
 var SecretKeyColl = require('./../models/schemas').SecretKeysColl;
@@ -74,7 +75,8 @@ Gps.prototype.AddDevicePositions = function (position, callback) {
     position.location = {};
     position.location.coordinates = [position.longitude, position.latitude];
     if(!position.address) {
-        getAddress(position, function (updatedAddress) {
+        // getAddress(position, function (updatedAddress) {
+            getOSMAddress(position, function (updatedAddress) {
             if(updatedAddress.status){
                 savePositionDoc(position,function (result) {
                     callback(result);
@@ -236,5 +238,30 @@ function savePositionDoc(position, callback) {
     });
 }
 
+function getOSMAddress(position, callback) {
+    // console.log(position);
+    var retObj = {
+        status: false,
+        messages: []
+    };
+    request({
+        method: 'GET',
+        url: 'http://13.127.89.224/reverse.php?format=json&lat='+position.latitude+'&lon='+position.longitude
+    }, function (errAddress, address) {  //{"error":"Unable to geocode"}
+        address = JSON.parse(address.body);
+        console.log(errAddress, address);
+        // console.log(address.body);
+        if(errAddress) {
+            retObj.messages.push('Error getting secret');
+            callback(retObj);
+        } else {
+            position.address = address.display_name;
+            // console.log(position);
+            retObj.status=true;
+            retObj.messages.push('Success');
+            callback(retObj);
+        }
+    });
+}
 
 module.exports = new Gps();
