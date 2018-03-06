@@ -9,12 +9,16 @@ producer.on('ready', function () {
     console.log("Kafka Producer is connected and ready.");
 });
 
+producer.createTopics(['devicePositions'], true, function (err, data) {
+    console.log(data);
+});
+
 var KafkaService = function () {
 };
 
 KafkaService.prototype.sendRecord = function (positions, callback) {
-    // console.log(positions);
-    console.log(config.devicePositionsTopicName);
+    console.log(positions);
+    // console.log(config.devicePositionsTopicName);
     var record = [
         { topic: config.devicePositionsTopicName, messages: [JSON.stringify(positions)] }
     ];
