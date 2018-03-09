@@ -74,7 +74,7 @@ Gps.prototype.AddDevicePositions = function (position, callback) {
     }
     position.location = {};
     position.location.coordinates = [position.longitude, position.latitude];
-    if(!position.address) {
+    if(!position.address || position.address === '{address}') {
         // getAddress(position, function (updatedAddress) {
             getOSMAddress(position, function (updatedAddress) {
             if(updatedAddress.status){
