@@ -17,11 +17,10 @@ var kafka = require('kafka-node'),
     );
 
 consumer.on('message', function (message) {
-    console.log('consumer', message);
     var position = JSON.parse(message.value);
     gps.AddDevicePositions(position, function (result) {
         // res.send(result);
-        console.log(result);
+        // console.log(result);
     });
     /*var positionDoc = new GpsColl(position);
     positionDoc.save(function (err,result) {
