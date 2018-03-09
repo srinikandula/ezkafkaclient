@@ -5,7 +5,6 @@ function getUserHome() {
 }
 
 var localConfigPath = getUserHome() + '/easygaadi-kafka-config.json';
-console.log(localConfigPath);
 var projectConfigPath = __dirname + '/config.json';
 
 if(process.env.NODE_ENV === "test") {
