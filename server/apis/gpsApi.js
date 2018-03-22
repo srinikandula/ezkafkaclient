@@ -74,24 +74,32 @@ Gps.prototype.AddDevicePositions = function (position, callback) {
     }
     position.location = {};
     position.location.coordinates = [position.longitude, position.latitude];
-    if(!position.address || position.address === '{address}') {
-        // getAddress(position, function (updatedAddress) {
-            getOSMAddress(position, function (updatedAddress) {
-            if(updatedAddress.status){
-                savePositionDoc(position,function (result) {
+    if(position.longitude!==0&&position.latitude!==0) {
+        if (!position.address || position.address === '{address}') {
+            // getAddress(position, function (updatedAddress) {
+
+            if (!position.address) {
+                // getAddress(position, function (updatedAddress) {
+                getOSMAddress(position, function (updatedAddress) {
+                    if (updatedAddress.status) {
+                        savePositionDoc(position, function (result) {
+                            callback(result);
+                        })
+                    } else {
+                        callback(retObj);
+                    }
+
+                })
+            } else {
+                savePositionDoc(position, function (result) {
                     callback(result);
                 })
-            }else{
-                callback(retObj);
             }
-
-        })
-    } else {
-        savePositionDoc(position,function (result) {
-            callback(result);
-        })
+        }
+    }else{
+        retObj.messages.push('This is a default position');
+        callback(retObj);
     }
-
 };
 
 function savePositionDoc(position, callback) {
