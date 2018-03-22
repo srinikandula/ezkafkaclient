@@ -203,7 +203,7 @@ function savePositionDoc(position, callback) {
                                             // retObj.results={isStopped:isStopped,isIdle:isIdle};
                                             result.isIdle=isIdle;
                                             result.isStopped=isStopped;
-                                            var positionData=new GpsColl(result);
+                                            var positionData=new GpsColl(positionDoc);
                                             positionData.save(function (err) {
                                                 if(err){
                                                     retObj1.status=false;
