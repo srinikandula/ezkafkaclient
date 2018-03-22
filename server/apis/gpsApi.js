@@ -108,15 +108,15 @@ function savePositionDoc(position, callback) {
         status: false,
         messages: []
     };
-    var positionDoc = new GpsColl(position);
-    positionDoc.save(function (err,result) {
-        if (err) {
-            retObj.messages.push('Error saving position');
-            callback(retObj);
-        } else {
-            retObj.status = true;
-            retObj.messages.push('Successfully saved the position');
-            TrucksColl.find({deviceId:positionDoc.deviceId},{accountId:1,isIdle:1},function (err,accountId) {
+    // var positionDoc = new GpsColl(position);
+    // positionDoc.save(function (err,result) {
+    //     if (err) {
+    //         retObj.messages.push('Error saving position');
+    //         callback(retObj);
+    //     } else {
+    //         retObj.status = true;
+    //         retObj.messages.push('Successfully saved the position');
+            TrucksColl.find({deviceId:position.deviceId},{accountId:1,isIdle:1},function (err,accountId) {
                 if(err){
                     retObj.status=false;
                     retObj.messages.push('Error fetching data');
@@ -137,7 +137,7 @@ function savePositionDoc(position, callback) {
                             async.series({
                                 one: function (aCallbackOne) {
                                     GpsColl.find({
-                                        deviceId: positionDoc.deviceId,
+                                        deviceId: position.deviceId,
                                         createdAt: {$gte: idealDate, $lte: currentDate}
                                     }).sort({createdAt: -1}).exec(function (err, positions) {
                                         if (err) {
@@ -150,7 +150,7 @@ function savePositionDoc(position, callback) {
                                                     isIdle = true;
                                                     var stopDate = new Date((currentDate - 0) - (stopTime * 60000));
                                                     GpsColl.find({
-                                                        deviceId: positionDoc.deviceId,
+                                                        deviceId: position.deviceId,
                                                         createdAt: {$gte: stopDate, $lte: currentDate}
                                                     }).sort({createdAt: -1}).exec(function (err, positions) {
                                                         if (err) {
@@ -192,18 +192,16 @@ function savePositionDoc(position, callback) {
                                 two:function (aCallbackTwo) {
                                     var retObj1={status:false,
                                         messages:[]};
-                                    positionDoc.isIdle=isIdle;
-                                    positionDoc.isStopped=isStopped;
-                                    TrucksColl.update({deviceId:positionDoc.deviceId},{$set:{isIdle:isIdle,isStopped:isStopped,"attrs.latestLocation":positionDoc}},function (err,truckResult) {
+                                    position.isIdle=isIdle;
+                                    position.isStopped=isStopped;
+                                    TrucksColl.update({deviceId:position.deviceId},{$set:{isIdle:isIdle,isStopped:isStopped,"attrs.latestLocation":positionDoc}},function (err,truckResult) {
                                         if(err){
                                             retObj1.status=false;
                                             retObj1.messages.push('Error updating truck status');
                                             aCallbackTwo(err,retObj1);
                                         }else{
                                             // retObj.results={isStopped:isStopped,isIdle:isIdle};
-                                            result.isIdle=isIdle;
-                                            result.isStopped=isStopped;
-                                            var positionData=new GpsColl(positionDoc);
+                                            var positionData=new GpsColl(position);
                                             positionData.save(function (err) {
                                                 if(err){
                                                     retObj1.status=false;
@@ -245,8 +243,8 @@ function savePositionDoc(position, callback) {
             //         callback(retObj);
             //     }
             // });
-        }
-    });
+        // }
+    // });
 }
 
 function getOSMAddress(position, callback) {
