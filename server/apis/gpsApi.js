@@ -72,6 +72,7 @@ Gps.prototype.AddDevicePositions = function (position, callback) {
         position.latitude = position.valid;
         position.valid = false
     }
+    if (position.attributes) position.attributes = JSON.parse(position.attributes);
     position.location = {};
     position.location.coordinates = [position.longitude, position.latitude];
     if(position.longitude!==0&&position.latitude!==0) {
