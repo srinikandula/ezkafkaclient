@@ -311,12 +311,7 @@ var devicePositions = new mongoose.Schema({
     speed: String,
     course: String,
     statusCode: String,
-    attributes: {
-        batteryLevel: String,
-        distance: Number,
-        totalDistance: Number,
-        motion: Number
-    },
+    attributes: {},
     address: String,
     isIdle:Boolean,
     isStopped:Boolean
@@ -610,6 +605,14 @@ var adminPermissionsSchema = mongoose.Schema({
     updatedBy: {type: ObjectId, ref: 'accounts'}
 }, {timestamps: String});
 
+var gpsSettingsSchema = mongoose.Schema({
+    accountId: {type: ObjectId, ref: 'accounts'},
+    idleTime: {type: Number, default: 10},
+    stopTime: {type: Number, default: 15},
+    overSpeedLimit: {type: Number, default: 60},
+    routeNotificationInterval: {type: Number, default: 10}
+});
+
 module.exports = {
     EventDataCollection: mongoose.model('eventData', eventDataSchema, 'eventData'),
     AccountsColl: mongoose.model('accounts', accountSchema, 'accounts'),
@@ -642,5 +645,6 @@ module.exports = {
     CustomerTypesColl: mongoose.model('customerTypes', customerTypesSchema, 'customerTypes'),
     franchiseColl: mongoose.model('franchise', franchiseSchema, 'franchise'),
     adminRoleColl: mongoose.model('adminRoles', adminRoleSchema, 'adminRoles'),
-    adminPermissionsColl: mongoose.model('adminPermissions', adminPermissionsSchema, 'adminPermissions')
+    adminPermissionsColl: mongoose.model('adminPermissions', adminPermissionsSchema, 'adminPermissions'),
+    GpsSettingsColl: mongoose.model('gpssettings', gpsSettingsSchema, 'gpssettings')
 };
