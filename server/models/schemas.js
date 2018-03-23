@@ -315,7 +315,8 @@ var devicePositions = new mongoose.Schema({
     address: String,
     isIdle:Boolean,
     isStopped:Boolean,
-    distance:{type:Number,default:0}
+    distance:{type:Number,default:0},
+    totalDistance:{type:Number,default:0}
         // isViewed : Boolean
 }, { timestamps: true, versionKey: false });
 
