@@ -117,105 +117,103 @@ function savePositionDoc(position, callback) {
     //     } else {
     //         retObj.status = true;
     //         retObj.messages.push('Successfully saved the position');
-            TrucksColl.find({deviceId:position.deviceId},{accountId:1,isIdle:1},function (err,accountId) {
+    TrucksColl.find({deviceId:position.deviceId},{accountId:1,isIdle:1},function (err,accountId) {
+        if(err){
+            retObj.status=false;
+            retObj.messages.push('Error fetching data');
+            callback(retObj);
+        }else{
+            AccountsColl.findOne({_id:accountId},function (err,settings) {
                 if(err){
                     retObj.status=false;
-                    retObj.messages.push('Error fetching data');
+                    retObj.messages.push('Error fetching settings data');
                     callback(retObj);
                 }else{
-                    AccountsColl.findOne({_id:accountId},function (err,settings) {
-                        if(err){
-                            retObj.status=false;
-                            retObj.messages.push('Error fetching settings data');
-                            callback(retObj);
-                        }else{
-                            var idealTime=20;
-                            var stopTime=60;
-                            var currentDate=new Date();
-                            var isIdle=false;
-                            var isStopped=false;
-                            var idealDate=new Date((currentDate-0)-(idealTime*60000));
-                            async.series({
-                                one: function (aCallbackOne) {
-                                    GpsColl.find({
-                                        deviceId: position.deviceId,
-                                        createdAt: {$gte: idealDate, $lte: currentDate}
-                                    }).sort({createdAt: -1}).exec(function (err, positions) {
-                                        if (err) {
-                                            retObj.status = false;
-                                            retObj.messages.push('Error fetching gps positions data');
-                                            aCallbackOne(err,retObj);
-                                        } else {
-                                            if (positions.length > 0) {
-                                                if (positions[0].location.coordinates[0] === positions[positions.length - 1].location.coordinates[0] && positions[0].location.coordinates[1] === positions[positions.length - 1].location.coordinates[1]) {
-                                                    isIdle = true;
-                                                    var stopDate = new Date((currentDate - 0) - (stopTime * 60000));
-                                                    GpsColl.find({
-                                                        deviceId: position.deviceId,
-                                                        createdAt: {$gte: stopDate, $lte: currentDate}
-                                                    }).sort({createdAt: -1}).exec(function (err, positions) {
-                                                        if (err) {
-                                                            retObj.status = false;
-                                                            retObj.messages.push('Error fetching gps positions data');
-                                                            aCallbackOne(err,retObj);
-                                                        } else {
-                                                            if (positions.length > 0) {
-                                                                if (positions[0].location.coordinates[0] === positions[positions.length - 1].location.coordinates[0] && positions[0].location.coordinates[1] === positions[positions.length - 1].location.coordinates[1]) {
-                                                                    isStopped = true;
-                                                                    aCallbackOne(null,{isIdle:isIdle,isStopped:isStopped})
-
-                                                                } else {
-                                                                    isStopped = false;
-                                                                    aCallbackOne(null,{isIdle:isIdle,isStopped:isStopped})
-                                                                }
-                                                            } else {
-                                                                isIdle = true;
-                                                                isStopped = true;
-                                                                aCallbackOne(null,{isIdle:isIdle,isStopped:isStopped})
-                                                            }
-                                                        }
-                                                    })
+                    var idealTime=20;
+                    var stopTime=60;
+                    var currentDate=new Date();
+                    var isIdle=false;
+                    var isStopped=false;
+                    var idealDate=new Date((currentDate-0)-(idealTime*60000));
+                    async.series({
+                        one: function (aCallbackOne) {
+                            GpsColl.find({
+                                deviceId: position.deviceId,
+                                createdAt: {$gte: idealDate, $lte: currentDate}
+                            }).sort({createdAt: -1}).exec(function (err, positions) {
+                                if (err) {
+                                    retObj.status = false;
+                                    retObj.messages.push('Error fetching gps positions data');
+                                    aCallbackOne(err,retObj);
+                                } else {
+                                    if (positions.length > 0) {
+                                        if (positions[0].location.coordinates[0] === positions[positions.length - 1].location.coordinates[0] && positions[0].location.coordinates[1] === positions[positions.length - 1].location.coordinates[1]) {
+                                            isIdle = true;
+                                            var stopDate = new Date((currentDate - 0) - (stopTime * 60000));
+                                            GpsColl.find({
+                                                deviceId: position.deviceId,
+                                                createdAt: {$gte: stopDate, $lte: currentDate}
+                                            }).sort({createdAt: -1}).exec(function (err, positions) {
+                                                if (err) {
+                                                    retObj.status = false;
+                                                    retObj.messages.push('Error fetching gps positions data');
+                                                    aCallbackOne(err,retObj);
                                                 } else {
-                                                    isIdle = false;
-                                                    isStopped = false;
-                                                    aCallbackOne(null,{isIdle:isIdle,isStopped:isStopped})
+                                                    if (positions.length > 0) {
+                                                        if (positions[0].location.coordinates[0] === positions[positions.length - 1].location.coordinates[0] && positions[0].location.coordinates[1] === positions[positions.length - 1].location.coordinates[1]) {
+                                                            isStopped = true;
+                                                            aCallbackOne(null,{isIdle:isIdle,isStopped:isStopped})
+
+                                                        } else {
+                                                            isStopped = false;
+                                                            aCallbackOne(null,{isIdle:isIdle,isStopped:isStopped})
+                                                        }
+                                                    } else {
+                                                        isIdle = true;
+                                                        isStopped = true;
+                                                        aCallbackOne(null,{isIdle:isIdle,isStopped:isStopped})
+                                                    }
                                                 }
-
-                                            } else {
-                                                isIdle = true;
-                                                isStopped = true;
-                                                aCallbackOne(null,{isIdle:isIdle,isStopped:isStopped})
-                                            }
+                                            })
+                                        } else {
+                                            isIdle = false;
+                                            isStopped = false;
+                                            aCallbackOne(null,{isIdle:isIdle,isStopped:isStopped})
                                         }
-                                    })
 
-                                },
-                                two:function (aCallbackTwo) {
-                                    var retObj1={status:false,
-                                        messages:[]};
-                                    position.isIdle=isIdle;
-                                    position.isStopped=isStopped;
-                                    // TrucksColl.findOne({deviceId:position.deviceId},{"attrs.latestLocation":1},function (err,trucks) {
-                                    //     if(err){
-                                    //         retObj1.status=false;
-                                    //         retObj1.messages.push('Error updating truck status');
-                                    //         aCallbackTwo(err,retObj1);
-                                    //     }else{
-                                    //         // 1.609344 * 3956 * 2 * ASIN(SQRT( POWER(SIN((@lastLatitude - :latitude) *  pi()/180 / 2), 2) +COS(@lastLatitude * pi()/180) * COS(:latitude * pi()/180) * POWER(SIN((@lastLongitude - :longitude) * pi()/180 / 2), 2) ));
-                                    //         var latitude=trucks.attrs.latestLocation.location.coordinates[1];
-                                    //         var longitude=trucks.attrs.latestLocation.location.coordinates[0];
-                                    //         var distance = 1.609344 * 3956 * 2 * Math.asin(Math.pow(Math.sin((latitude-position.location.coordinates[1])*Math.PI/180 /2),2)+Math.cos(latitude*Math.PI/180)*Math.cos(position.location.coordinates[1]*Math.PI/180)*Math.pow(Math.sin((longitude-position.location.coordinates[0])*Math.PI/180/2),2))
-                                    //         console.log(distance);
-                                    //     }
-                                    // });
-                                    TrucksColl.update({deviceId:position.deviceId},{$set:{isIdle:isIdle,isStopped:isStopped,"attrs.latestLocation":position}},function (err,truckResult) {
+                                    } else {
+                                        isIdle = true;
+                                        isStopped = true;
+                                        aCallbackOne(null,{isIdle:isIdle,isStopped:isStopped})
+                                    }
+                                }
+                            })
+
+                        },
+                        two:function (aCallbackTwo) {
+                            var retObj1={status:false,
+                                messages:[]};
+                            position.isIdle=isIdle;
+                            position.isStopped=isStopped;
+                            var positionData=new GpsColl(position);
+                            TrucksColl.findOne({deviceId:position.deviceId},function (err,trucks) {
+                                if(err){
+                                    retObj1.status=false;
+                                    retObj1.messages.push('Error updating truck status');
+                                    aCallbackTwo(err,retObj1);
+                                }else{
+                                    var latitude=trucks.attrs.latestLocation.location.coordinates[1];
+                                    var longitude=trucks.attrs.latestLocation.location.coordinates[0];
+                                    position.distance = 1.609344 * 3956 * 2 * Math.asin(Math.sqrt(Math.pow(Math.sin((latitude-position.location.coordinates[1])*Math.PI/180 /2),2)+Math.cos(latitude*Math.PI/180)*Math.cos(position.location.coordinates[1]*Math.PI/180)*Math.pow(Math.sin((longitude-position.location.coordinates[0])*Math.PI/180/2),2)))
+                                    position.totalDistance=trucks.attrs.latestLocation.totalDistance+position.distance;
+                                    positionData=new GpsColl(position);
+                                    TrucksColl.update({deviceId:positionData.deviceId},{$set:{isIdle:isIdle,isStopped:isStopped,"attrs.latestLocation":positionData}},function (err,truckResult) {
                                         if(err){
                                             retObj1.status=false;
                                             retObj1.messages.push('Error updating truck status');
                                             aCallbackTwo(err,retObj1);
                                         }else{
                                             // retObj.results={isStopped:isStopped,isIdle:isIdle};
-                                            var positionData=new GpsColl(position);
                                             positionData.save(function (err) {
                                                 if(err){
                                                     retObj1.status=false;
@@ -229,35 +227,38 @@ function savePositionDoc(position, callback) {
                                             });
                                         }
                                     })
+
                                 }
-                            },function (err,results) {
-                                if(err){
-                                    retObj.status=false;
-                                    retObj.messages.push('Error updating truck status');
-                                    callback(retObj);
-                                }else{
-                                    retObj.status=true;
-                                    retObj.messages.push('Success');
-                                    retObj.results=results.one;
-                                    callback(retObj);
-                                }
-                            })
+                            });
+                        }
+                    },function (err,results) {
+                        if(err){
+                            retObj.status=false;
+                            retObj.messages.push('Error updating truck status');
+                            callback(retObj);
+                        }else{
+                            retObj.status=true;
+                            retObj.messages.push('Success');
+                            retObj.results=results.one;
+                            callback(retObj);
                         }
                     })
                 }
-
             })
-            // TrucksColl.findOneAndUpdate({deviceId:positionDoc.deviceId},{$set:{"attrs.latestLocation":positionDoc}},function (truUpderr,result) {
-            //     if(truUpderr){
-            //         retObj.messages.push('Error updating the truck position');
-            //         callback(retObj);
-            //     }else{
-            //         retObj.status = true;
-            //         retObj.messages.push('Successfully updated the truck position');
-            //         callback(retObj);
-            //     }
-            // });
-        // }
+        }
+
+    })
+    // TrucksColl.findOneAndUpdate({deviceId:positionDoc.deviceId},{$set:{"attrs.latestLocation":positionDoc}},function (truUpderr,result) {
+    //     if(truUpderr){
+    //         retObj.messages.push('Error updating the truck position');
+    //         callback(retObj);
+    //     }else{
+    //         retObj.status = true;
+    //         retObj.messages.push('Successfully updated the truck position');
+    //         callback(retObj);
+    //     }
+    // });
+    // }
     // });
 }
 
@@ -286,3 +287,6 @@ function getOSMAddress(position, callback) {
 }
 
 module.exports = new Gps();
+
+
+// SELECT	@distance := 1.609344 * 3956 * 2 * ASIN(SQRT( POWER(SIN((@lastLatitude - :latitude) *  pi()/180 / 2), 2) +COS(@lastLatitude * pi()/180) * COS(:latitude * pi()/180) * POWER(SIN((@lastLongitude - :longitude) * pi()/180 / 2), 2) ));
