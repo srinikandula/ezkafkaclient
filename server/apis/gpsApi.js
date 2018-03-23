@@ -75,6 +75,7 @@ Gps.prototype.AddDevicePositions = function (position, callback) {
     if (position.attributes) position.attributes = JSON.parse(position.attributes);
     position.location = {};
     position.location.coordinates = [position.longitude, position.latitude];
+    position.speed=(position.speed*1.852);
     if(position.longitude!==0&&position.latitude!==0) {
         if (!position.address || position.address === '{address}') {
             // getAddress(position, function (updatedAddress) {
@@ -194,7 +195,20 @@ function savePositionDoc(position, callback) {
                                         messages:[]};
                                     position.isIdle=isIdle;
                                     position.isStopped=isStopped;
-                                    TrucksColl.update({deviceId:position.deviceId},{$set:{isIdle:isIdle,isStopped:isStopped,"attrs.latestLocation":positionDoc}},function (err,truckResult) {
+                                    // TrucksColl.findOne({deviceId:position.deviceId},{"attrs.latestLocation":1},function (err,trucks) {
+                                    //     if(err){
+                                    //         retObj1.status=false;
+                                    //         retObj1.messages.push('Error updating truck status');
+                                    //         aCallbackTwo(err,retObj1);
+                                    //     }else{
+                                    //         // 1.609344 * 3956 * 2 * ASIN(SQRT( POWER(SIN((@lastLatitude - :latitude) *  pi()/180 / 2), 2) +COS(@lastLatitude * pi()/180) * COS(:latitude * pi()/180) * POWER(SIN((@lastLongitude - :longitude) * pi()/180 / 2), 2) ));
+                                    //         var latitude=trucks.attrs.latestLocation.location.coordinates[1];
+                                    //         var longitude=trucks.attrs.latestLocation.location.coordinates[0];
+                                    //         var distance = 1.609344 * 3956 * 2 * Math.asin(Math.pow(Math.sin((latitude-position.location.coordinates[1])*Math.PI/180 /2),2)+Math.cos(latitude*Math.PI/180)*Math.cos(position.location.coordinates[1]*Math.PI/180)*Math.pow(Math.sin((longitude-position.location.coordinates[0])*Math.PI/180/2),2))
+                                    //         console.log(distance);
+                                    //     }
+                                    // });
+                                    TrucksColl.update({deviceId:position.deviceId},{$set:{isIdle:isIdle,isStopped:isStopped,"attrs.latestLocation":position}},function (err,truckResult) {
                                         if(err){
                                             retObj1.status=false;
                                             retObj1.messages.push('Error updating truck status');
