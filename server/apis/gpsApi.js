@@ -109,14 +109,6 @@ function savePositionDoc(position, callback) {
         status: false,
         messages: []
     };
-    // var positionDoc = new GpsColl(position);
-    // positionDoc.save(function (err,result) {
-    //     if (err) {
-    //         retObj.messages.push('Error saving position');
-    //         callback(retObj);
-    //     } else {
-    //         retObj.status = true;
-    //         retObj.messages.push('Successfully saved the position');
     TrucksColl.find({deviceId:position.deviceId},{accountId:1,isIdle:1},function (err,accountId) {
         if(err){
             retObj.status=false;
@@ -202,11 +194,13 @@ function savePositionDoc(position, callback) {
                                     retObj1.messages.push('Error updating truck status');
                                     aCallbackTwo(err,retObj1);
                                 }else{
-                                    var latitude=trucks.attrs.latestLocation.location.coordinates[1];
-                                    var longitude=trucks.attrs.latestLocation.location.coordinates[0];
-                                    position.distance = 1.609344 * 3956 * 2 * Math.asin(Math.sqrt(Math.pow(Math.sin((latitude-position.location.coordinates[1])*Math.PI/180 /2),2)+Math.cos(latitude*Math.PI/180)*Math.cos(position.location.coordinates[1]*Math.PI/180)*Math.pow(Math.sin((longitude-position.location.coordinates[0])*Math.PI/180/2),2)))
-                                    position.totalDistance=trucks.attrs.latestLocation.totalDistance+position.distance;
-                                    positionData=new GpsColl(position);
+                                    if(trucks.attrs.latestLocation){
+                                        var latitude=trucks.attrs.latestLocation.location.coordinates[1];
+                                        var longitude=trucks.attrs.latestLocation.location.coordinates[0];
+                                        position.distance = 1.609344 * 3956 * 2 * Math.asin(Math.sqrt(Math.pow(Math.sin((latitude-position.location.coordinates[1])*Math.PI/180 /2),2)+Math.cos(latitude*Math.PI/180)*Math.cos(position.location.coordinates[1]*Math.PI/180)*Math.pow(Math.sin((longitude-position.location.coordinates[0])*Math.PI/180/2),2)))
+                                        position.totalDistance=trucks.attrs.latestLocation.totalDistance+position.distance;
+                                        positionData=new GpsColl(position);
+                                    }
                                     TrucksColl.update({deviceId:positionData.deviceId},{$set:{isIdle:isIdle,isStopped:isStopped,"attrs.latestLocation":positionData}},function (err,truckResult) {
                                         if(err){
                                             retObj1.status=false;
@@ -226,8 +220,7 @@ function savePositionDoc(position, callback) {
                                                 }
                                             });
                                         }
-                                    })
-
+                                    });
                                 }
                             });
                         }
@@ -246,20 +239,7 @@ function savePositionDoc(position, callback) {
                 }
             })
         }
-
     })
-    // TrucksColl.findOneAndUpdate({deviceId:positionDoc.deviceId},{$set:{"attrs.latestLocation":positionDoc}},function (truUpderr,result) {
-    //     if(truUpderr){
-    //         retObj.messages.push('Error updating the truck position');
-    //         callback(retObj);
-    //     }else{
-    //         retObj.status = true;
-    //         retObj.messages.push('Successfully updated the truck position');
-    //         callback(retObj);
-    //     }
-    // });
-    // }
-    // });
 }
 
 function getOSMAddress(position, callback) {
