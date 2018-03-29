@@ -214,7 +214,7 @@ function savePositionDoc(position, callback) {
                                             aCallbackTwo(err,retObj1);
                                         }else{
                                             // retObj.results={isStopped:isStopped,isIdle:isIdle};
-                                            DeviceColl.update({imei:positionData.deviceId},{$set:{"attrs.latestLocation":positionData}})
+                                            // DeviceColl.update({imei:positionData.deviceId},{$set:{"attrs.latestLocation":positionData}})
                                             positionData.save(function (err) {
                                                 if(err){
                                                     retObj1.status=false;
