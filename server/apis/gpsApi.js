@@ -79,8 +79,6 @@ Gps.prototype.AddDevicePositions = function (position, callback) {
     if(position.longitude!==0&&position.latitude!==0) {
         if (!position.address || position.address === '{address}') {
             // getAddress(position, function (updatedAddress) {
-
-            if (!position.address) {
                 // getAddress(position, function (updatedAddress) {
                 getOSMAddress(position, function (updatedAddress) {
                     if (updatedAddress.status) {
@@ -92,11 +90,10 @@ Gps.prototype.AddDevicePositions = function (position, callback) {
                     }
 
                 })
-            } else {
-                savePositionDoc(position, function (result) {
-                    callback(result);
-                })
-            }
+        } else {
+            savePositionDoc(position, function (result) {
+                callback(result);
+            })
         }
     }else{
         retObj.messages.push('This is a default position');
