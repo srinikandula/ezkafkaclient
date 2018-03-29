@@ -10,7 +10,7 @@ var SecretKeyCounterColl = require('./../models/schemas').SecretKeyCounterColl;
 var TrucksColl = require('./../models/schemas').TrucksColl;
 var archivedDevicePositions = require('./../models/schemas').archivedDevicePositionsColl;
 var AccountsColl = require('./../models/schemas').AccountsColl;
-
+var DeviceColl = require('./../models/schemas').DeviceColl;
 
 
 var Gps = function () {
@@ -90,7 +90,7 @@ Gps.prototype.AddDevicePositions = function (position, callback) {
                     }
 
                 })
-        } else {
+        }else {
             savePositionDoc(position, function (result) {
                 callback(result);
             })
@@ -211,6 +211,7 @@ function savePositionDoc(position, callback) {
                                             aCallbackTwo(err,retObj1);
                                         }else{
                                             // retObj.results={isStopped:isStopped,isIdle:isIdle};
+                                            // DeviceColl.update({imei:positionData.deviceId},{$set:{"attrs.latestLocation":positionData}})
                                             positionData.save(function (err) {
                                                 if(err){
                                                     retObj1.status=false;
