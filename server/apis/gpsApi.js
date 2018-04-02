@@ -10,7 +10,7 @@ var SecretKeyCounterColl = require('./../models/schemas').SecretKeyCounterColl;
 var TrucksColl = require('./../models/schemas').TrucksColl;
 var archivedDevicePositions = require('./../models/schemas').archivedDevicePositionsColl;
 var AccountsColl = require('./../models/schemas').AccountsColl;
-
+var DeviceColl = require('./../models/schemas').DeviceColl;
 
 
 var Gps = function () {
@@ -79,8 +79,6 @@ Gps.prototype.AddDevicePositions = function (position, callback) {
     if(position.longitude!==0&&position.latitude!==0) {
         if (!position.address || position.address === '{address}') {
             // getAddress(position, function (updatedAddress) {
-
-            if (!position.address) {
                 // getAddress(position, function (updatedAddress) {
                 getOSMAddress(position, function (updatedAddress) {
                     if (updatedAddress.status) {
@@ -92,11 +90,10 @@ Gps.prototype.AddDevicePositions = function (position, callback) {
                     }
 
                 })
-            } else {
-                savePositionDoc(position, function (result) {
-                    callback(result);
-                })
-            }
+        }else {
+            savePositionDoc(position, function (result) {
+                callback(result);
+            })
         }
     }else{
         retObj.messages.push('This is a default position');
@@ -208,6 +205,7 @@ function savePositionDoc(position, callback) {
                                             aCallbackTwo(err,retObj1);
                                         }else{
                                             // retObj.results={isStopped:isStopped,isIdle:isIdle};
+                                            // DeviceColl.update({imei:positionData.deviceId},{$set:{"attrs.latestLocation":positionData}})
                                             positionData.save(function (err) {
                                                 if(err){
                                                     retObj1.status=false;
