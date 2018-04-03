@@ -17,7 +17,7 @@ var KafkaService = function () {
 };
 
 KafkaService.prototype.sendRecord = function (positions, callback) {
-    // console.log(config.devicePositionsTopicName);
+    console.log(" writing to kafka: "+config.devicePositionsTopicName);
     // console.log('producer', positions.longitude, positions.latitude);
     var record = [
         { topic: config.devicePositionsTopicName, messages: [JSON.stringify(positions)] }
