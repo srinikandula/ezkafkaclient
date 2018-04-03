@@ -18,6 +18,7 @@ var KafkaService = function () {
 
 KafkaService.prototype.sendRecord = function (positions, callback) {
     // console.log(config.devicePositionsTopicName);
+    console.log('producer', positions);
     var record = [
         { topic: config.devicePositionsTopicName, messages: [JSON.stringify(positions)] }
     ];
