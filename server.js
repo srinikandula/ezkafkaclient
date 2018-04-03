@@ -6,7 +6,10 @@ var app = express();
 
 var config = require('./server/config/config');
 var Gps = require('./server/routes/gpsRoutes');
+// var kafkaConsumerGroup = require('./server/kafka/kafkaConsumerGroup');
 var kafkaConsumer = require('./server/kafka/kafkaConsumer');
+var kafkaConsumer2 = require('./server/kafka/kafkaConsumer2');
+var kafkaConsumer3 = require('./server/kafka/kafkaConsumer3');
 
 app.set('port', 7000);
 
