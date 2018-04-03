@@ -17,15 +17,17 @@ var KafkaService = function () {
 };
 
 KafkaService.prototype.sendRecord = function (positions, callback) {
-    console.log(" writing to kafka: "+config.devicePositionsTopicName);
+    console.log("producer: writing to kafka: "+config.devicePositionsTopicName);
     // console.log('producer', positions.longitude, positions.latitude);
     var record = [
         { topic: config.devicePositionsTopicName, messages: [JSON.stringify(positions)] }
     ];
     producer.send(record, function (err, data) {
         if(err) {
+            console.error("producer: error writing to kafka "+ JSON.stringify(err));
             callback(err);
         } else {
+            console.log('producer: done');
             callback(data);
         }
     });
