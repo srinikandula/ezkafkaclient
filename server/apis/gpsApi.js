@@ -191,34 +191,38 @@ function savePositionDoc(position, callback) {
                                     retObj1.messages.push('Error updating truck status');
                                     aCallbackTwo(err,retObj1);
                                 }else{
-                                    if(trucks.attrs && trucks.attrs.latestLocation){
-                                        var latitude=trucks.attrs.latestLocation.location.coordinates[1];
-                                        var longitude=trucks.attrs.latestLocation.location.coordinates[0];
-                                        position.distance = 1.609344 * 3956 * 2 * Math.asin(Math.sqrt(Math.pow(Math.sin((latitude-position.location.coordinates[1])*Math.PI/180 /2),2)+Math.cos(latitude*Math.PI/180)*Math.cos(position.location.coordinates[1]*Math.PI/180)*Math.pow(Math.sin((longitude-position.location.coordinates[0])*Math.PI/180/2),2)))
-                                        position.totalDistance=trucks.attrs.latestLocation.totalDistance+position.distance;
-                                        positionData=new GpsColl(position);
-                                    }
-                                    TrucksColl.update({deviceId:positionData.deviceId},{$set:{isIdle:isIdle,isStopped:isStopped,"attrs.latestLocation":positionData}},function (err,truckResult) {
-                                        if(err){
-                                            retObj1.status=false;
-                                            retObj1.messages.push('Error updating truck status');
-                                            aCallbackTwo(err,retObj1);
-                                        }else{
-                                            // retObj.results={isStopped:isStopped,isIdle:isIdle};
-                                            // DeviceColl.update({imei:positionData.deviceId},{$set:{"attrs.latestLocation":positionData}})
-                                            positionData.save(function (err) {
-                                                if(err){
-                                                    retObj1.status=false;
-                                                    retObj1.messages.push('Error updating device position status');
-                                                    aCallbackTwo(err,retObj1);
-                                                }else{
-                                                    retObj1.status=true;
-                                                    retObj1.messages.push('Success');
-                                                    aCallbackTwo(null,retObj1);
-                                                }
-                                            });
+                                    if(!trucks) {
+                                        console.error("Truck not found for position :" + JSON.stringify(position));
+                                    } else {
+                                        if(trucks.attrs && trucks.attrs.latestLocation){
+                                            var latitude=trucks.attrs.latestLocation.location.coordinates[1];
+                                            var longitude=trucks.attrs.latestLocation.location.coordinates[0];
+                                            position.distance = 1.609344 * 3956 * 2 * Math.asin(Math.sqrt(Math.pow(Math.sin((latitude-position.location.coordinates[1])*Math.PI/180 /2),2)+Math.cos(latitude*Math.PI/180)*Math.cos(position.location.coordinates[1]*Math.PI/180)*Math.pow(Math.sin((longitude-position.location.coordinates[0])*Math.PI/180/2),2)))
+                                            position.totalDistance=trucks.attrs.latestLocation.totalDistance+position.distance;
+                                            positionData=new GpsColl(position);
                                         }
-                                    });
+                                        TrucksColl.update({deviceId:positionData.deviceId},{$set:{isIdle:isIdle,isStopped:isStopped,"attrs.latestLocation":positionData}},function (err,truckResult) {
+                                            if(err){
+                                                retObj1.status=false;
+                                                retObj1.messages.push('Error updating truck status');
+                                                aCallbackTwo(err,retObj1);
+                                            }else{
+                                                // retObj.results={isStopped:isStopped,isIdle:isIdle};
+                                                // DeviceColl.update({imei:positionData.deviceId},{$set:{"attrs.latestLocation":positionData}})
+                                                positionData.save(function (err) {
+                                                    if(err){
+                                                        retObj1.status=false;
+                                                        retObj1.messages.push('Error updating device position status');
+                                                        aCallbackTwo(err,retObj1);
+                                                    }else{
+                                                        retObj1.status=true;
+                                                        retObj1.messages.push('Success');
+                                                        aCallbackTwo(null,retObj1);
+                                                    }
+                                                });
+                                            }
+                                        });
+                                    }
                                 }
                             });
                         }
