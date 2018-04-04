@@ -191,7 +191,7 @@ function savePositionDoc(position, callback) {
                                     retObj1.messages.push('Error updating truck status');
                                     aCallbackTwo(err,retObj1);
                                 }else{
-                                    if(trucks.attrs.latestLocation){
+                                    if(trucks.attrs && trucks.attrs.latestLocation){
                                         var latitude=trucks.attrs.latestLocation.location.coordinates[1];
                                         var longitude=trucks.attrs.latestLocation.location.coordinates[0];
                                         position.distance = 1.609344 * 3956 * 2 * Math.asin(Math.sqrt(Math.pow(Math.sin((latitude-position.location.coordinates[1])*Math.PI/180 /2),2)+Math.cos(latitude*Math.PI/180)*Math.cos(position.location.coordinates[1]*Math.PI/180)*Math.pow(Math.sin((longitude-position.location.coordinates[0])*Math.PI/180/2),2)))
