@@ -78,8 +78,6 @@ Gps.prototype.AddDevicePositions = function (position, callback) {
     position.speed=(position.speed*1.852);
     if(position.longitude!==0&&position.latitude!==0) {
         if (!position.address || position.address === '{address}') {
-            // getAddress(position, function (updatedAddress) {
-                // getAddress(position, function (updatedAddress) {
                 getOSMAddress(position, function (updatedAddress) {
                     if (updatedAddress.status) {
                         savePositionDoc(position, function (result) {
@@ -106,7 +104,7 @@ function savePositionDoc(position, callback) {
         status: false,
         messages: []
     };
-    TrucksColl.find({deviceId:position.deviceId},{accountId:1,isIdle:1},function (err,accountId) {
+    TrucksColl.find({deviceId:position.uniqueId},{accountId:1,isIdle:1},function (err,accountId) {
         if(err){
             retObj.status=false;
             retObj.messages.push('Error fetching data');
@@ -127,7 +125,7 @@ function savePositionDoc(position, callback) {
                     async.series({
                         one: function (aCallbackOne) {
                             GpsColl.find({
-                                deviceId: position.deviceId,
+                                deviceId: position.uniqueId,
                                 createdAt: {$gte: idealDate, $lte: currentDate}
                             }).sort({createdAt: -1}).exec(function (err, positions) {
                                 if (err) {
@@ -140,7 +138,7 @@ function savePositionDoc(position, callback) {
                                             isIdle = true;
                                             var stopDate = new Date((currentDate - 0) - (stopTime * 60000));
                                             GpsColl.find({
-                                                deviceId: position.deviceId,
+                                                deviceId: position.uniqueId,
                                                 createdAt: {$gte: stopDate, $lte: currentDate}
                                             }).sort({createdAt: -1}).exec(function (err, positions) {
                                                 if (err) {
@@ -185,7 +183,7 @@ function savePositionDoc(position, callback) {
                             position.isIdle=isIdle;
                             position.isStopped=isStopped;
                             var positionData=new GpsColl(position);
-                            TrucksColl.findOne({deviceId:position.deviceId},function (err,trucks) {
+                            TrucksColl.findOne({deviceId:position.uniqueId},function (err,trucks) {
                                 if(err){
                                     retObj1.status=false;
                                     retObj1.messages.push('Error updating truck status');
@@ -201,7 +199,7 @@ function savePositionDoc(position, callback) {
                                             position.totalDistance=trucks.attrs.latestLocation.totalDistance+position.distance;
                                             positionData=new GpsColl(position);
                                         }
-                                        TrucksColl.update({deviceId:positionData.deviceId},{$set:{isIdle:isIdle,isStopped:isStopped,"attrs.latestLocation":positionData}},function (err,truckResult) {
+                                        TrucksColl.update({deviceId:positionData.uniqueId},{$set:{isIdle:isIdle,isStopped:isStopped,"attrs.latestLocation":positionData}},function (err,truckResult) {
                                             if(err){
                                                 retObj1.status=false;
                                                 retObj1.messages.push('Error updating truck status');
