@@ -3,7 +3,8 @@ chmod 777 install_nvm.sh
 bash install_nvm.sh
 source ~/.profile
 nvm install v8.11.1
-
+npm install pm2 -g
+sudo apt-get install build-essential
 
 
 mongo
