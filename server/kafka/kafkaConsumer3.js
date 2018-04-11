@@ -11,10 +11,10 @@ var consumer2 = new Consumer(client, [{topic: config.devicePositionsTopicName,  
 
 consumer2.on('message', function (message) {
     var position = JSON.parse(message.value);
-    console.log('consumer3 : '+ position.longitude, position.latitude);
+  //  console.log('consumer3 : '+ position.longitude, position.latitude);
     gps.AddDevicePositions(position, function (result) {
         // res.send(result);
-        console.log('consumer3 :saved poistion');
+    //    console.log('consumer3 :saved poistion');
     });
 
 });

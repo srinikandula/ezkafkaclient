@@ -17,7 +17,7 @@ var KafkaService = function () {
 };
 
 KafkaService.prototype.sendRecord = function (positions, callback) {
-    console.log("producer: writing to kafka: "+config.devicePositionsTopicName);
+   // console.log("producer: writing to kafka: "+config.devicePositionsTopicName);
     // console.log('producer', positions.longitude, positions.latitude);
     var record = [
         { topic: config.devicePositionsTopicName, messages: [JSON.stringify(positions)] }
@@ -27,7 +27,7 @@ KafkaService.prototype.sendRecord = function (positions, callback) {
             console.error("producer: error writing to kafka "+ JSON.stringify(err));
             callback(err);
         } else {
-            console.log('producer: done');
+           // console.log('producer: done');
             callback(data);
         }
     });
