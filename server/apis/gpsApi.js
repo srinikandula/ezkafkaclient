@@ -256,8 +256,12 @@ function getOSMAddress(position, callback) {
             callback(retObj);
         } else {
             if(address) {
-                address = JSON.parse(address.body);
-                position.address = address.display_name;
+                try{
+                    address = JSON.parse(address.body);
+                    position.address = address.display_name;
+                }catch(error) {
+                    console.log("OSM error "+ JSON.stringify(error));
+                }
             }
             retObj.status=true;
             retObj.messages.push('Success');
