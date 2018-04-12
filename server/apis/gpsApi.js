@@ -147,7 +147,8 @@ function findAccountSettingsForIMIE(position, callback) {
                         console.log('save response');
                     });
                 } else {
-                    gpsSettingsColl.findOne({accountId:accountId},{},function (err,gpsSettings) {
+                    console.log('looking up account settings '+ deviceData.accountId);
+                    gpsSettingsColl.findOne({accountId:deviceData.accountId},{},function (err,gpsSettings) {
                         accountGPSSettings[deviceData.accountId] = gpsSettings;
                         saveGPSPosition(position,gpsSettings, deviceData.attrs.latestLocation, function(saveResponse){
                             console.log('save response');
