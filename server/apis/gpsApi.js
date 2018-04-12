@@ -12,7 +12,7 @@ var TrucksColl = require('./../models/schemas').TrucksColl;
 var archivedDevicePositions = require('./../models/schemas').archivedDevicePositionsColl;
 var gpsSettingsColl = require('./../models/schemas').GpsSettingsColl;
 var DeviceColl = require('./../models/schemas').DeviceColl;
-
+var unknownPositions = require('./../models/schemas').unknownPositions;
 
 var accountGPSSettings ={};
 var Gps = function () {
@@ -139,8 +139,11 @@ function findAccountSettingsForIMIE(currentPosition, callback) {
             retObj.messages.push('Error fetching data');
             callback(retObj);
         }else{
-            if(!deviceData) {
-                console.error("No device found for "+ JSON.stringify(deviceData));
+            if(!deviceData || deviceData.length == 0) {
+                unknownPosition = new unknownPositions({"data":currentPosition});
+                unknownPosition.save(function (err, updated) {
+                    console.error("No device found for "+ JSON.stringify(deviceData));
+                });
             } else {
                 var settings = accountGPSSettings[deviceData[0].accountId]
                 if(settings) {
@@ -202,6 +205,8 @@ function saveGPSPosition(currentLocation, accountSettings,lastLocation, callback
                     }
                 }
             } else { //calculate the distance travelled
+                currentLocation.isIdle = false;
+                currentLocation.isStopped = false;
                 var lastLatitude=lastLocation.location.coordinates[1];
                 var lastLongitude=lastLocation.location.coordinates[0];
                 var currentLatitude=currentLocation.location.coordinates[1];

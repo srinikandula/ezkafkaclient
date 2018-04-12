@@ -291,6 +291,9 @@ var erpSettingsSchema = mongoose.Schema({
     }
 }, {timestamps: String});
 
+var unknownPositions = new mongoose.Schema({
+   data:{}
+});
 var devicePositions = new mongoose.Schema({
     gprmc: String,
     name: String,
@@ -649,5 +652,6 @@ module.exports = {
     franchiseColl: mongoose.model('franchise', franchiseSchema, 'franchise'),
     adminRoleColl: mongoose.model('adminRoles', adminRoleSchema, 'adminRoles'),
     adminPermissionsColl: mongoose.model('adminPermissions', adminPermissionsSchema, 'adminPermissions'),
-    GpsSettingsColl: mongoose.model('gpssettings', gpsSettingsSchema, 'gpssettings')
+    GpsSettingsColl: mongoose.model('gpssettings', gpsSettingsSchema, 'gpssettings'),
+    unknownPositions:mongoose.model('unknownPositions', unknownPositions, 'unknownPositions')
 };
