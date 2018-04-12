@@ -4,6 +4,14 @@ var kafka = require('kafka-node'),
     producer = new HighLevelProducer(client);
 var config = require('./../config/config');
 
+//https://stackoverflow.com/questions/31588430/brokernotavailableerror-could-not-find-the-leader-exception-while-spark-streami
+
+client.refreshMetadata(['devicePositions'], function(err,data){
+    if (err) {
+        console.warn('Error refreshing kafka metadata', err);
+    }
+});
+
 // for(var i = 0;i < 1000; i++) payloads[0].messages.push('message'+i);
 producer.on('ready', function () {
     console.log("Kafka Producer is connected and ready.");
