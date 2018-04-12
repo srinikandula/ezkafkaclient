@@ -222,7 +222,7 @@ function updateTruckDeviceAndDevicePositions(currentLocation) {
             console.error("Error saving latest location in to device")
         } else {
             if(deviceSaveResponse.nModified !== 1){
-                console.error('Error updating for device imei '+ currentLocation.position.uniqueId);
+                console.error('Error updating for device imei '+ JSON.stringify(currentLocation.position));
             } else {
                 console.log('Device updated');
             }
