@@ -139,7 +139,7 @@ function findAccountSettingsForIMIE(currentPosition, callback) {
             retObj.messages.push('Error fetching data');
             callback(retObj);
         }else{
-            if(!deviceData) {
+            if(!deviceData || deviceData.length == 0) {
                 console.error("No device found for "+ JSON.stringify(deviceData));
             } else {
                 var settings = accountGPSSettings[deviceData[0].accountId]
