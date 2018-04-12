@@ -82,29 +82,28 @@ function resolveAddress(position, callback) {
  * @constructor
  */
 
-Gps.prototype.addDevicePositions = function (position, callback) {
+Gps.prototype.addDevicePositions = function (currentPosition, callback) {
     var retObj = {
         status: false,
         messages: []
     };
     //If the data structure is bad fix it here(Sometimes position.valid will have latitude data). Don't know why
-    if (position.latitude === 'true' || position.latitude === 'false') {
-        position.latitude = position.valid;
-        position.valid = false
+    if (currentPosition.latitude === 'true' || currentPosition.latitude === 'false') {
+        currentPosition.latitude = currentPosition.valid;
+        currentPosition.valid = false
     }
-    if (position.attributes) {
-        position.attributes = JSON.parse(position.attributes);
+    if (currentPosition.attributes) {
+        currentPosition.attributes = JSON.parse(currentPosition.attributes);
     }
-    position.location = {};
-    position.location.type = "Point";
-    position.location.coordinates = [position.longitude, position.latitude];
-    position.speed=(position.speed*1.852);
-    currentPosition = {"position":position};
-    currentPosition.position.lastUpdated = new Date();
+    currentPosition.location = {};
+    currentPosition.location.type = "Point";
+    currentPosition.location.coordinates = [currentPosition.longitude, currentPosition.latitude];
+    currentPosition.speed=(currentPosition.speed*1.852);
+    currentPosition.lastUpdated = new Date();
     //Sometimes the latitude and longiture are coming as 0, ignore the position
-    if(Number(position.longitude)!==0 && Number(position.latitude)!==0) {
-        if (!position.address || position.address === '{address}') { //if address is not provided by traccar use OSM
-            getOSMAddress(position, function (updatedAddress) {
+    if(Number(currentPosition.longitude)!==0 && Number(currentPosition.latitude)!==0) {
+        if (!currentPosition.address || currentPosition.address === '{address}') { //if address is not provided by traccar use OSM
+            getOSMAddress(currentPosition, function (updatedAddress) {
                 if (updatedAddress.status) {
                     findAccountSettingsForIMIE(currentPosition, function (result) {
                         callback(result);
@@ -134,7 +133,7 @@ function findAccountSettingsForIMIE(currentPosition, callback) {
         status: false,
         messages: []
     };
-    DeviceColl.find({imei:currentPosition.position.uniqueId},{accountId:1,isIdle:1,"attrs.latestLocation":1},function (err,deviceData) {
+    DeviceColl.find({imei:currentPosition.uniqueId},{accountId:1,isIdle:1,"attrs.latestLocation":1},function (err,deviceData) {
         if(err){
             retObj.status=false;
             retObj.messages.push('Error fetching data');
@@ -184,21 +183,21 @@ function saveGPSPosition(currentLocation, accountSettings,lastLocation, callback
             lastLocation = {};
             lastLocation.isIdle = false;
             lastLocation.isStopped = false;
-            lastLocation.position = currentLocation;
-            lastLocation.position.lastUpdated = new Date();
+            lastLocation= currentLocation;
+            lastLocation.lastUpdated = new Date();
             console.log('No old location found for Device:imei:'+JSON.stringify(currentLocation))
             updateTruckDeviceAndDevicePositions(lastLocation);
         } else { //if the latest location is available on the deivice then compare the current position with it to check if the vehicle is idle
 
             //no change in position co-ordinates, so it may idle or stoppped
-            if(lastLocation.position.location.coordinates[0] === currentLocation.position.location.coordinates[0] &&
-                lastLocation.position.location.coordinates[1] === currentLocation.position.location.coordinates[1]){
+            if(lastLocation.location.coordinates[0] === currentLocation.location.coordinates[0] &&
+                lastLocation.location.coordinates[1] === currentLocation.location.coordinates[1]){
                 if(lastLocation.isIdle){
-                    if(currentLocation.position.lastUpdated && lastLocation.position.lastUpdated &&  currentLocation.position.lastUpdated.getMilliseconds() - lastLocation.position.lastUpdated.getMilliseconds() > stopTime){
+                    if(currentLocation.lastUpdated && lastLocation.lastUpdated &&  currentLocation.lastUpdated.getMilliseconds() - lastLocation.lastUpdated.getMilliseconds() > stopTime){
                         currentLocation.isStopped = true;
                     }
                 } else {
-                    if(currentLocation.position.lastUpdated && lastLocation.position.lastUpdated && currentLocation.position.lastUpdated.getMilliseconds() - lastLocation.position.lastUpdated.getMilliseconds() > idealTime){
+                    if(currentLocation.lastUpdated && lastLocation.lastUpdated && currentLocation.lastUpdated.getMilliseconds() - lastLocation.lastUpdated.getMilliseconds() > idealTime){
                         currentLocation.isIdle = true;
                     }
                 }
@@ -217,31 +216,31 @@ function saveGPSPosition(currentLocation, accountSettings,lastLocation, callback
 }
 
 function updateTruckDeviceAndDevicePositions(currentLocation) {
-    DeviceColl.update({imei:currentLocation.position.uniqueId},{$set:{"attrs.latestLocation":currentLocation}},function (error, deviceSaveResponse) {
+    DeviceColl.update({imei:currentLocation.uniqueId},{$set:{"attrs.latestLocation":currentLocation}},function (error, deviceSaveResponse) {
         if(error){
             console.error("Error saving latest location in to device")
         } else {
             if(deviceSaveResponse.nModified !== 1){
-                console.error('Error updating for device imei '+ JSON.stringify(currentLocation.position));
+                console.error('Error updating for device imei '+ JSON.stringify(currentLocation));
             } else {
                 console.log('Device updated');
             }
 
         }
     });
-    TrucksColl.update({deviceId:currentLocation.position.uniqueId},{$set:{"attrs.latestLocation":currentLocation}},function (error, truckSaveResponse) {
+    TrucksColl.update({deviceId:currentLocation.uniqueId},{$set:{"attrs.latestLocation":currentLocation}},function (error, truckSaveResponse) {
         if(error){
             console.error("Error saving latest location in to device")
         } else {
             if(truckSaveResponse.nModified !== 1){
-                console.error('Error updating for truck for deviceId '+ currentLocation.position.uniqueId);
+                console.error('Error updating for truck for deviceId '+ currentLocation.uniqueId);
             } else {
                 console.log('Truck updated');
             }
         }
     });
     //save to device positions
-    positionData=new devicePostions(currentLocation.position);
+    positionData=new devicePostions(currentLocation);
     positionData.save(function (err, updated) {
         if(err){
             console.log('failed adding new device position')
