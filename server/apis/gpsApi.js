@@ -99,12 +99,14 @@ Gps.prototype.addDevicePositions = function (position, callback) {
     position.location.type = "Point";
     position.location.coordinates = [position.longitude, position.latitude];
     position.speed=(position.speed*1.852);
+    currentPosition = {"position":position};
+    currentPosition.position.lastUpdated = new Date();
     //Sometimes the latitude and longiture are coming as 0, ignore the position
     if(Number(position.longitude)!==0 && Number(position.latitude)!==0) {
         if (!position.address || position.address === '{address}') { //if address is not provided by traccar use OSM
             getOSMAddress(position, function (updatedAddress) {
                 if (updatedAddress.status) {
-                    findAccountSettingsForIMIE(position, function (result) {
+                    findAccountSettingsForIMIE(currentPosition, function (result) {
                         callback(result);
                     })
                 } else {
@@ -112,7 +114,7 @@ Gps.prototype.addDevicePositions = function (position, callback) {
                 }
             })
         }else {
-            findAccountSettingsForIMIE(position, function (result) {
+            findAccountSettingsForIMIE(currentPosition, function (result) {
                 callback(result);
             })
         }
@@ -127,12 +129,12 @@ Gps.prototype.addDevicePositions = function (position, callback) {
  * @param position
  * @param callback
  */
-function findAccountSettingsForIMIE(position, callback) {
+function findAccountSettingsForIMIE(currentPosition, callback) {
     var retObj = {
         status: false,
         messages: []
     };
-    DeviceColl.find({imei:position.uniqueId},{accountId:1,isIdle:1,"attrs.latestLocation":1},function (err,deviceData) {
+    DeviceColl.find({imei:currentPosition.position.uniqueId},{accountId:1,isIdle:1,"attrs.latestLocation":1},function (err,deviceData) {
         if(err){
             retObj.status=false;
             retObj.messages.push('Error fetching data');
@@ -141,16 +143,16 @@ function findAccountSettingsForIMIE(position, callback) {
             if(!deviceData) {
                 console.error("No device found for "+ JSON.stringify(deviceData));
             } else {
-                var settings = accountGPSSettings[deviceData.accountId]
+                var settings = accountGPSSettings[deviceData[0].accountId]
                 if(settings) {
-                    saveGPSPosition(position,settings, deviceData.attrs.latestLocation, function(saveResponse){
+                    saveGPSPosition(currentPosition,settings, deviceData[0].attrs.latestLocation, function(saveResponse){
                         console.log('save response');
                     });
                 } else {
-                    console.log('looking up account settings '+ deviceData.accountId);
+                    console.log('looking up account settings '+ deviceData[0].accountId);
                     gpsSettingsColl.findOne({accountId:deviceData.accountId},{},function (err,gpsSettings) {
                         accountGPSSettings[deviceData.accountId] = gpsSettings;
-                        saveGPSPosition(position,gpsSettings, deviceData.attrs.latestLocation, function(saveResponse){
+                        saveGPSPosition(currentPosition,gpsSettings, deviceData[0].attrs.latestLocation, function(saveResponse){
                             console.log('save response');
                         });
                     });
@@ -183,20 +185,20 @@ function saveGPSPosition(currentLocation, accountSettings,lastLocation, callback
             lastLocation.isIdle = false;
             lastLocation.isStopped = false;
             lastLocation.position = currentLocation;
-            lastLocation.lastUpdated = new Date();
+            lastLocation.position.lastUpdated = new Date();
             console.log('No old location found for Device:imei:'+JSON.stringify(currentLocation))
             updateTruckDeviceAndDevicePositions(lastLocation);
         } else { //if the latest location is available on the deivice then compare the current position with it to check if the vehicle is idle
 
             //no change in position co-ordinates, so it may idle or stoppped
-            if(lastLocation.position.location.coordinates[0] === currentPosition.position.location.coordinates[0] &&
-                lastLocation.position.location.coordinates[1] === currentPosition.position.location.coordinates[1]){
+            if(lastLocation.position.location.coordinates[0] === currentLocation.position.location.coordinates[0] &&
+                lastLocation.position.location.coordinates[1] === currentLocation.position.location.coordinates[1]){
                 if(lastLocation.isIdle){
-                    if(currentLocation.lastUpdated.getMilliseconds() - lastLocation.lastUpdated.getMilliseconds() > stopTime){
+                    if(currentLocation.position.lastUpdated && lastLocation.position.lastUpdated &&  currentLocation.position.lastUpdated.getMilliseconds() - lastLocation.position.lastUpdated.getMilliseconds() > stopTime){
                         currentLocation.isStopped = true;
                     }
                 } else {
-                    if(currentLocation.lastUpdated.getMilliseconds() - lastLocation.lastUpdated.getMilliseconds() > idealTime){
+                    if(currentLocation.position.lastUpdated && lastLocation.position.lastUpdated && currentLocation.position.lastUpdated.getMilliseconds() - lastLocation.position.lastUpdated.getMilliseconds() > idealTime){
                         currentLocation.isIdle = true;
                     }
                 }
@@ -215,31 +217,36 @@ function saveGPSPosition(currentLocation, accountSettings,lastLocation, callback
 }
 
 function updateTruckDeviceAndDevicePositions(currentLocation) {
-    DeviceColl.update({imei:currentLocation.uniqueId},{$set:{"attrs.latestLocation":currentLocation}},function (error, deviceSaveResponse) {
+    DeviceColl.update({imei:currentLocation.position.uniqueId},{$set:{"attrs.latestLocation":currentLocation}},function (error, deviceSaveResponse) {
         if(error){
             console.error("Error saving latest location in to device")
         } else {
-           console.log('Device updated');
+            if(deviceSaveResponse.nModified !== 1){
+                console.error('Error updating for device imei '+ currentLocation.position.uniqueId);
+            } else {
+                console.log('Device updated');
+            }
+
         }
     });
-    TrucksColl.update({deviceId:currentLocation.uniqueId},{$set:{"attrs.latestLocation":currentLocation}},function (error, truckSaveResponse) {
+    TrucksColl.update({deviceId:currentLocation.position.uniqueId},{$set:{"attrs.latestLocation":currentLocation}},function (error, truckSaveResponse) {
         if(error){
             console.error("Error saving latest location in to device")
         } else {
-            console.log('Truck updated');
+            if(truckSaveResponse.nModified !== 1){
+                console.error('Error updating for truck for deviceId '+ currentLocation.position.uniqueId);
+            } else {
+                console.log('Truck updated');
+            }
         }
     });
     //save to device positions
-    positionData=new devicePostions(currentLocation);
-    positionData.save(function (err) {
+    positionData=new devicePostions(currentLocation.position);
+    positionData.save(function (err, updated) {
         if(err){
-            retObj1.status=false;
-            retObj1.messages.push('Error updating device position status');
-            //check if update count is 0
+            console.log('failed adding new device position')
         }else{
-            retObj1.status=true;
-            retObj1.messages.push('Success');
-            console.log('Device position saved');
+            console.log('Device position saved '+ updated);
         }
     });
 }
