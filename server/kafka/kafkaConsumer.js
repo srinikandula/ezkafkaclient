@@ -12,7 +12,7 @@ var consumer1 = new Consumer(client, [{topic: config.devicePositionsTopicName}],
 consumer1.on('message', function (message) {
     var position = JSON.parse(message.value);
     //console.log('consumer1 :'+ position.longitude, position.latitude);
-    gps.AddDevicePositions(position, function (result) {
+    gps.addDevicePositions(position, function (result) {
        // console.log('consumer1 :saved poistion');
     });
 
