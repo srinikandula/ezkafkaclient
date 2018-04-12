@@ -260,7 +260,7 @@ function getOSMAddress(position, callback) {
                     address = JSON.parse(address.body);
                     position.address = address.display_name;
                 }catch(error) {
-                    console.log("OSM error "+ JSON.stringify(error));
+                    console.error("OSM error "+ JSON.stringify(error));
                 }
             }
             retObj.status=true;
