@@ -202,6 +202,9 @@ function saveGPSPosition(currentLocation, accountSettings,lastLocation, callback
                 } else {
                     if(currentLocation.lastUpdated && lastLocation.lastUpdated && currentLocation.lastUpdated.getMilliseconds() - lastLocation.lastUpdated.getMilliseconds() > idealTime){
                         currentLocation.isIdle = true;
+                    } else{
+                        currentLocation.isIdle = false;
+                        currentLocation.isStopped=false;
                     }
                 }
             } else { //calculate the distance travelled
