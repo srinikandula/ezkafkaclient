@@ -209,7 +209,7 @@ function saveGPSPosition(currentLocation, accountSettings,lastLocation, callback
                 if(!lastLocation.totalDistance||isNaN(lastLocation.totalDistance)){
                     lastLocation.totalDistance=0;
                 }
-                if(currentLocation.distance||isNaN(currentLocation.distance)){
+                if(!currentLocation.distance||isNaN(currentLocation.distance)){
                     currentLocation.distance=0;
                 }
                 currentLocation.totalDistance=lastLocation.totalDistance+currentLocation.distance;
