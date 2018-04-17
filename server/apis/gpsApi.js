@@ -213,6 +213,12 @@ function saveGPSPosition(currentLocation, accountSettings,lastLocation, callback
                 var currentLongitude=currentLocation.location.coordinates[0];
                 //position.distance = 1.609344 * 3956 * 2 * Math.asin(Math.sqrt(Math.pow(Math.sin((latitude-position.location.coordinates[1])*Math.PI/180 /2),2)+Math.cos(latitude*Math.PI/180)*Math.cos(position.location.coordinates[1]*Math.PI/180)*Math.pow(Math.sin((longitude-position.location.coordinates[0])*Math.PI/180/2),2)))
                 currentLocation.distance = 1.609344 * 3956 * 2 * Math.asin(Math.sqrt(Math.pow(Math.sin((currentLatitude-lastLatitude)*Math.PI/180 /2),2)+Math.cos(lastLatitude*Math.PI/180)*Math.cos(currentLatitude*Math.PI/180)*Math.pow(Math.sin((currentLongitude-lastLongitude)*Math.PI/180/2),2)))
+                if(!lastLocation.totalDistance||isNaN(lastLocation.totalDistance)){
+                    lastLocation.totalDistance=0;
+                }
+                if(!currentLocation.distance||isNaN(currentLocation.distance)){
+                    currentLocation.distance=0;
+                }
                 currentLocation.totalDistance=lastLocation.totalDistance+currentLocation.distance;
             }
             updateTruckDeviceAndDevicePositions(currentLocation);
