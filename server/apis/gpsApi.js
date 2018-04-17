@@ -180,8 +180,8 @@ function findAccountSettingsForIMIE(currentPosition, callback) {
  * @param callback
  */
 function saveGPSPosition(currentLocation, accountSettings,lastLocation, callback){
-        var idealTime=(accountSettings.idealTime || 20) * 60000;
-        var stopTime=(accountSettings.idealTime || 60) * 60000;
+        var idealTime=((accountSettings && accountSettings.idealTime) || 20) * 60000;
+        var stopTime=((accountSettings && accountSettings.idealTime) || 60) * 60000;
         if(!lastLocation){ //if the device data is not available set it now
             lastLocation = {};
             lastLocation.isIdle = false;
