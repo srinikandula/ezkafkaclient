@@ -219,7 +219,6 @@ function saveGPSPosition(currentLocation, accountSettings,lastLocation, callback
                     currentLocation.distance=0;
                 }
                 if(isNaN(lastLocation.totalDistance)){
-                    //lastLocation.totalDistance = 0;
                     console.error(" totalDistance is not found for "+ currentLocation.uniqueId + "   data:"+ JSON.stringify(lastLocation));
                     lastLocation.totalDistance = 0;
                 }
