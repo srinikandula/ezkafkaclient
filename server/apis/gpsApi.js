@@ -189,10 +189,8 @@ function saveGPSPosition(currentLocation, accountSettings,lastLocation, callback
             lastLocation= currentLocation;
             lastLocation.lastUpdated = new Date();
             lastLocation.totalDistance=0;
-            console.log('No old location found for Device:imei:'+JSON.stringify(currentLocation))
             updateTruckDeviceAndDevicePositions(lastLocation);
         } else { //if the latest location is available on the deivice then compare the current position with it to check if the vehicle is idle
-
             //no change in position co-ordinates, so it may idle or stoppped
             if(lastLocation.location.coordinates[0] === currentLocation.location.coordinates[0] &&
                 lastLocation.location.coordinates[1] === currentLocation.location.coordinates[1]){
@@ -219,6 +217,9 @@ function saveGPSPosition(currentLocation, accountSettings,lastLocation, callback
                 currentLocation.distance = 1.609344 * 3956 * 2 * Math.asin(Math.sqrt(Math.pow(Math.sin((currentLatitude-lastLatitude)*Math.PI/180 /2),2)+Math.cos(lastLatitude*Math.PI/180)*Math.cos(currentLatitude*Math.PI/180)*Math.pow(Math.sin((currentLongitude-lastLongitude)*Math.PI/180/2),2)))
                 if(!currentLocation.distance||isNaN(currentLocation.distance)){
                     currentLocation.distance=0;
+                }
+                if(isNaN(lastLocation.totalDistance)){
+                    lastLocation.totalDistance = 0;
                 }
                 currentLocation.totalDistance=lastLocation.totalDistance+currentLocation.distance;
             }
@@ -257,7 +258,7 @@ function updateTruckDeviceAndDevicePositions(currentLocation) {
         if(err){
             console.log('failed adding new device position')
         }else{
-            console.log('Device position saved '+ updated);
+            console.log('Device position saved ');
         }
     });
 }
