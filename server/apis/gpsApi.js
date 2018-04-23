@@ -223,6 +223,7 @@ function saveGPSPosition(currentLocation, accountSettings,lastLocation, callback
                     lastLocation.totalDistance = 0;
                 }
                 currentLocation.totalDistance=lastLocation.totalDistance+currentLocation.distance;
+
             }
             updateTruckDeviceAndDevicePositions(currentLocation);
         }
@@ -230,29 +231,7 @@ function saveGPSPosition(currentLocation, accountSettings,lastLocation, callback
 }
 
 function updateTruckDeviceAndDevicePositions(currentLocation) {
-    DeviceColl.update({imei:currentLocation.uniqueId},{$set:{"attrs.latestLocation":currentLocation}},function (error, deviceSaveResponse) {
-        if(error){
-            console.error("Error saving latest location in to device")
-        } else {
-            if(deviceSaveResponse.nModified !== 1){
-                console.error('Error updating for device imei '+ JSON.stringify(currentLocation));
-            } else {
-                console.log('Device updated');
-            }
 
-        }
-    });
-    TrucksColl.update({deviceId:currentLocation.uniqueId},{$set:{"attrs.latestLocation":currentLocation}},function (error, truckSaveResponse) {
-        if(error){
-            console.error("Error saving latest location in to device")
-        } else {
-            if(truckSaveResponse.nModified !== 1){
-                console.error('Error updating for truck for deviceId '+ currentLocation.uniqueId);
-            } else {
-                console.log('Truck updated');
-            }
-        }
-    });
     //save to device positions
     positionData=new devicePostions(currentLocation);
     positionData.save(function (err, updated) {
@@ -260,6 +239,29 @@ function updateTruckDeviceAndDevicePositions(currentLocation) {
             console.log('failed adding new device position')
         }else{
             console.log('Device position saved ');
+            DeviceColl.update({imei:currentLocation.uniqueId},{$set:{"attrs.latestLocation":updated}},function (error, deviceSaveResponse) {
+                if(error){
+                    console.error("Error saving latest location in to device")
+                } else {
+                    if(deviceSaveResponse.nModified !== 1){
+                        console.error('Error updating for device imei '+ JSON.stringify(updated));
+                    } else {
+                        console.log('Device updated');
+                    }
+
+                }
+            });
+            TrucksColl.update({deviceId:currentLocation.uniqueId},{$set:{"attrs.latestLocation":updated}},function (error, truckSaveResponse) {
+                if(error){
+                    console.error("Error saving latest location in to device")
+                } else {
+                    if(truckSaveResponse.nModified !== 1){
+                        console.error('Error updating for truck for deviceId '+ currentLocation.uniqueId);
+                    } else {
+                        console.log('Truck updated');
+                    }
+                }
+            });
         }
     });
 }
