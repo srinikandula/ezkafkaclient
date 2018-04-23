@@ -218,12 +218,13 @@ function saveGPSPosition(currentLocation, accountSettings,lastLocation, callback
                 if(!currentLocation.distance||isNaN(currentLocation.distance)){
                     currentLocation.distance=0;
                 }
-                if(!isNaN(lastLocation.totalDistance)){
+                if(isNaN(lastLocation.totalDistance)){
                     //lastLocation.totalDistance = 0;
-                    currentLocation.totalDistance=lastLocation.totalDistance+currentLocation.distance;
-                } else{
                     console.error(" totalDistance is not found for "+ currentLocation.uniqueId + "   data:"+ JSON.stringify(lastLocation));
+                    lastLocation.totalDistance = 0;
                 }
+                currentLocation.totalDistance=lastLocation.totalDistance+currentLocation.distance;
+
             }
             updateTruckDeviceAndDevicePositions(currentLocation);
         }
