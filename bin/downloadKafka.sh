@@ -11,7 +11,7 @@ else
         echo "downloaing kafka..."
         wget http://www-us.apache.org/dist/kafka/1.1.0/kafka_2.11-1.1.0.tgz --directory-prefix=$HOME/
     fi
-  ME/tar xvf ~/kafka_2.11-1.1.0.tgz -C $HO
+  tar xvf ~/kafka_2.11-1.1.0.tgz -C $HOME/
   export KAFKA_HOME=$HOME/kafka_2.11-1.1.0
 fi
 

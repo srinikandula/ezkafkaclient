@@ -1,8 +1,13 @@
 {
   "mongo": {
-    "url": "mongodb://localhost/easygaadi"
+    "url": "mongodb://localhost/easygaadi",
+    "user":"easygaadi",
+    "password":"123"
   },
   "port": 7000,
+  "kafkahost":"localhost",
   "bodyParserLimit": "50mb",
-  "googleSecretKeyLimit": 3
+  "googleSecretKeyLimit": 3,
+  "devicePositionsTopicName": "devicePositions",
+  "consumerGroupId": "devicePositionsGroup"
 }
