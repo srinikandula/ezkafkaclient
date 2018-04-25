@@ -1,8 +1,9 @@
+var config = require('./../config/config');
 var kafka = require('kafka-node'),
     HighLevelProducer = kafka.HighLevelProducer,
-    client = new kafka.Client(),
+    client = new kafka.Client(config.kafkaHost),
     producer = new HighLevelProducer(client);
-var config = require('./../config/config');
+
 
 //https://stackoverflow.com/questions/31588430/brokernotavailableerror-could-not-find-the-leader-exception-while-spark-streami
 

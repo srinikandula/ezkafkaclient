@@ -5,7 +5,7 @@ console.log('Topics Name ', config.devicePositionsTopicName);
 
 var kafka = require('kafka-node'),
     Consumer = kafka.Consumer,
-    client = new kafka.Client();
+    client = new kafka.Client(config.kafkaHost);
 console.log('consumer2', config.consumerGroupId);
 
 var consumer2 = new Consumer(client, [{topic: config.devicePositionsTopicName,  partition: 1}], {groupId: config.consumerGroupId, autoCommit: true});
