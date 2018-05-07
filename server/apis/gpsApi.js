@@ -4,7 +4,6 @@ var config = require('./../config/config');
 
 var request = require('request');
 
-
 var devicePostions = require('./../models/schemas').GpsColl;
 var SecretKeyColl = require('./../models/schemas').SecretKeysColl;
 var SecretKeyCounterColl = require('./../models/schemas').SecretKeyCounterColl;
@@ -111,7 +110,7 @@ Gps.prototype.addDevicePositions = function (currentPosition, callback) {
                 } else {
                     callback(retObj);
                 }
-            })
+            });
         }else {
             findAccountSettingsForIMIE(currentPosition, function (result) {
                 callback(result);
@@ -153,10 +152,14 @@ function findAccountSettingsForIMIE(currentPosition, callback) {
                 } else {
                     console.log('looking up account settings '+ deviceData[0].accountId);
                     gpsSettingsColl.findOne({accountId:deviceData.accountId},{},function (err,gpsSettings) {
-                        accountGPSSettings[deviceData.accountId] = gpsSettings;
-                        saveGPSPosition(currentPosition,gpsSettings, deviceData[0].attrs.latestLocation, function(saveResponse){
-                            console.log('save response');
-                        });
+                        if(err){
+                            console.error("error finding GPSSettings "+ JSON.stringify(err));
+                        } else {
+                            accountGPSSettings[deviceData.accountId] = gpsSettings;
+                            saveGPSPosition(currentPosition,gpsSettings, deviceData[0].attrs.latestLocation, function(saveResponse){
+                                console.log('save response');
+                            });
+                        }
                     });
                 }
             }
@@ -192,14 +195,15 @@ function saveGPSPosition(currentLocation, accountSettings,lastLocation, callback
             updateTruckDeviceAndDevicePositions(lastLocation);
         } else { //if the latest location is available on the deivice then compare the current position with it to check if the vehicle is idle
             //no change in position co-ordinates, so it may idle or stoppped
-            if(lastLocation.location.coordinates[0] === currentLocation.location.coordinates[0] &&
-                lastLocation.location.coordinates[1] === currentLocation.location.coordinates[1]){
+            if(parseFloat(lastLocation.location.coordinates[0]) === parseFloat(currentLocation.location.coordinates[0]) &&
+                parseFloat(lastLocation.location.coordinates[1]) === parseFloat(currentLocation.location.coordinates[1])){
                 if(lastLocation.isIdle){
-                    if(currentLocation.lastUpdated && lastLocation.lastUpdated &&  currentLocation.lastUpdated.getMilliseconds() - lastLocation.lastUpdated.getMilliseconds() > stopTime){
+                    if(currentLocation.lastUpdated && lastLocation.updatedAt &&  currentLocation.lastUpdated.getTime() - lastLocation.updatedAt.getTime() > stopTime){
+                        currentLocation.isIdle = true;
                         currentLocation.isStopped = true;
                     }
                 } else {
-                    if(currentLocation.lastUpdated && lastLocation.lastUpdated && currentLocation.lastUpdated.getMilliseconds() - lastLocation.lastUpdated.getMilliseconds() > idealTime){
+                    if(currentLocation.lastUpdated && lastLocation.updatedAt && currentLocation.lastUpdated.getTime() - lastLocation.updatedAt.getTime() > idealTime){
                         currentLocation.isIdle = true;
                     } else{
                         currentLocation.isIdle = false;
