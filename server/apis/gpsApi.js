@@ -157,10 +157,17 @@ function findAccountSettingsForIMIE(currentPosition, callback) {
                         if(err){
                             console.error("error finding GPSSettings "+ JSON.stringify(err));
                         } else {
-                            accountGPSSettings[deviceData.accountId] = gpsSettings._doc;
-                            saveGPSPosition(currentPosition,gpsSettings._doc, deviceData[0].attrs.latestLocation, function(saveResponse){
-                                console.log('save response');
-                            });
+                            if(gpsSettings&& gpsSettings._doc){
+                                accountGPSSettings[deviceData.accountId] = gpsSettings._doc;
+                                saveGPSPosition(currentPosition,gpsSettings._doc, deviceData[0].attrs.latestLocation, function(saveResponse){
+                                    console.log('save response');
+                                });
+                            } else {
+                                saveGPSPosition(currentPosition,{}, deviceData[0].attrs.latestLocation, function(saveResponse){
+                                    console.log('save response');
+                                });
+                            }
+
                         }
                     });
                 }
