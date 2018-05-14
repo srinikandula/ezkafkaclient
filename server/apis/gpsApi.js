@@ -8,11 +8,10 @@ var devicePostions = require('./../models/schemas').GpsColl;
 var SecretKeyColl = require('./../models/schemas').SecretKeysColl;
 var SecretKeyCounterColl = require('./../models/schemas').SecretKeyCounterColl;
 var TrucksColl = require('./../models/schemas').TrucksColl;
-var archivedDevicePositions = require('./../models/schemas').archivedDevicePositionsColl;
 var gpsSettingsColl = require('./../models/schemas').GpsSettingsColl;
 var DeviceColl = require('./../models/schemas').DeviceColl;
 var unknownPositions = require('./../models/schemas').unknownPositions;
-var GpsSettingsColl = require('./../models/schemas').GpsSettingsColl;
+
 var mongoose = require('mongoose');
 const ObjectId = mongoose.Types.ObjectId;
 var accountGPSSettings ={};
