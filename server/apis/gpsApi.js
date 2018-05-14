@@ -96,6 +96,8 @@ Gps.prototype.addDevicePositions = function (currentPosition, callback) {
         currentPosition.attributes = JSON.parse(currentPosition.attributes);
     }
     currentPosition.location = {};
+    currentPosition.isStopped = true;
+    currentPosition.isIdle = true;
     currentPosition.location.type = "Point";
     currentPosition.location.coordinates = [currentPosition.longitude, currentPosition.latitude];
     currentPosition.speed=(currentPosition.speed*1.852);
@@ -103,15 +105,15 @@ Gps.prototype.addDevicePositions = function (currentPosition, callback) {
     //Sometimes the latitude and longiture are coming as 0, ignore the position
     if(Number(currentPosition.longitude)!==0 && Number(currentPosition.latitude)!==0) {
         if (!currentPosition.address || currentPosition.address === '{address}') { //if address is not provided by traccar use OSM
-           // getOSMAddress(currentPosition, function (updatedAddress) {
-              //  if (updatedAddress.status) {
+            getOSMAddress(currentPosition, function (updatedAddress) {
+               if (updatedAddress.status) {
                     findAccountSettingsForIMIE(currentPosition, function (result) {
                         callback(result);
                     })
-             /*   } else {
+                } else {
                     callback(retObj);
                 }
-            });*/
+            });
         }else {
             findAccountSettingsForIMIE(currentPosition, function (result) {
                 callback(result);
