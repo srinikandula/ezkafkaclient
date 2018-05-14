@@ -12,7 +12,9 @@ var archivedDevicePositions = require('./../models/schemas').archivedDevicePosit
 var gpsSettingsColl = require('./../models/schemas').GpsSettingsColl;
 var DeviceColl = require('./../models/schemas').DeviceColl;
 var unknownPositions = require('./../models/schemas').unknownPositions;
-
+var GpsSettingsColl = require('./../models/schemas').GpsSettingsColl;
+var mongoose = require('mongoose');
+const ObjectId = mongoose.Types.ObjectId;
 var accountGPSSettings ={};
 var Gps = function () {
 };
@@ -102,15 +104,15 @@ Gps.prototype.addDevicePositions = function (currentPosition, callback) {
     //Sometimes the latitude and longiture are coming as 0, ignore the position
     if(Number(currentPosition.longitude)!==0 && Number(currentPosition.latitude)!==0) {
         if (!currentPosition.address || currentPosition.address === '{address}') { //if address is not provided by traccar use OSM
-            getOSMAddress(currentPosition, function (updatedAddress) {
-                if (updatedAddress.status) {
+           // getOSMAddress(currentPosition, function (updatedAddress) {
+              //  if (updatedAddress.status) {
                     findAccountSettingsForIMIE(currentPosition, function (result) {
                         callback(result);
                     })
-                } else {
+             /*   } else {
                     callback(retObj);
                 }
-            });
+            });*/
         }else {
             findAccountSettingsForIMIE(currentPosition, function (result) {
                 callback(result);
@@ -144,6 +146,7 @@ function findAccountSettingsForIMIE(currentPosition, callback) {
                     console.error("No device found for "+ JSON.stringify(deviceData));
                 });
             } else {
+                //check for settings in accountSettigs cache
                 var settings = accountGPSSettings[deviceData[0].accountId]
                 if(settings) {
                     saveGPSPosition(currentPosition,settings, deviceData[0].attrs.latestLocation, function(saveResponse){
@@ -151,12 +154,12 @@ function findAccountSettingsForIMIE(currentPosition, callback) {
                     });
                 } else {
                     console.log('looking up account settings '+ deviceData[0].accountId);
-                    gpsSettingsColl.findOne({accountId:deviceData.accountId},{},function (err,gpsSettings) {
+                    gpsSettingsColl.findOne({accountId:ObjectId(deviceData[0].accountId)},{},function (err,gpsSettings) {
                         if(err){
                             console.error("error finding GPSSettings "+ JSON.stringify(err));
                         } else {
-                            accountGPSSettings[deviceData.accountId] = gpsSettings;
-                            saveGPSPosition(currentPosition,gpsSettings, deviceData[0].attrs.latestLocation, function(saveResponse){
+                            accountGPSSettings[deviceData.accountId] = gpsSettings._doc;
+                            saveGPSPosition(currentPosition,gpsSettings._doc, deviceData[0].attrs.latestLocation, function(saveResponse){
                                 console.log('save response');
                             });
                         }
@@ -183,8 +186,16 @@ function findAccountSettingsForIMIE(currentPosition, callback) {
  * @param callback
  */
 function saveGPSPosition(currentLocation, accountSettings,lastLocation, callback){
-        var idealTime=((accountSettings && accountSettings.idealTime) || 20) * 60000;
-        var stopTime=((accountSettings && accountSettings.idealTime) || 60) * 60000;
+        //we do not have idleTime in UI, so use minStopTime for both idleTime and stopTime
+        var idealTime=20 * 60000;
+        if(accountSettings && accountSettings.minStopTime){
+            idealTime = parseInt(accountSettings.minStopTime) * 60000;
+        }
+        var stopTime=30 * 60000;
+        if(accountSettings && accountSettings.minStopTime){
+            stopTime = parseInt(accountSettings.minStopTime) * 60000;
+        }
+
         if(!lastLocation){ //if the device data is not available set it now
             lastLocation = {};
             lastLocation.isIdle = false;
@@ -250,7 +261,7 @@ function updateTruckDeviceAndDevicePositions(currentLocation) {
                     if(deviceSaveResponse.nModified !== 1){
                         console.error('Error updating for device imei '+ JSON.stringify(updated));
                     } else {
-                        console.log('Device updated');
+                        console.log('Device updated '+ JSON.stringify(deviceSaveResponse));
                     }
 
                 }
@@ -262,7 +273,7 @@ function updateTruckDeviceAndDevicePositions(currentLocation) {
                     if(truckSaveResponse.nModified !== 1){
                         console.error('Error updating for truck for deviceId '+ currentLocation.uniqueId);
                     } else {
-                        console.log('Truck updated');
+                        console.log('Truck updated ' + JSON.stringify(truckSaveResponse));
                     }
                 }
             });
