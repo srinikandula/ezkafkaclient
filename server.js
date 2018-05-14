@@ -11,7 +11,7 @@ var kafkaConsumer = require('./server/kafka/kafkaConsumer');
 var kafkaConsumer2 = require('./server/kafka/kafkaConsumer2');
 var kafkaConsumer3 = require('./server/kafka/kafkaConsumer3');
 
-app.set('port', 7000);
+app.set('port', 8000);
 
 app.use(bodyParser.json({limit: config.bodyParserLimit}));
 app.use(bodyParser.urlencoded({limit: config.bodyParserLimit, extended: true}));
