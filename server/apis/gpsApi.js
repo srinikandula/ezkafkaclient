@@ -96,10 +96,12 @@ Gps.prototype.addDevicePositions = function (currentPosition, callback) {
         currentPosition.attributes = JSON.parse(currentPosition.attributes);
     }
     currentPosition.location = {};
-    currentPosition.isStopped = true;
-    currentPosition.isIdle = true;
     currentPosition.location.type = "Point";
     currentPosition.location.coordinates = [currentPosition.longitude, currentPosition.latitude];
+    if(parseFloat(currentPosition.speed) == 0){
+        currentPosition.isStopped = true;
+        currentPosition.isIdle = true;
+    }
     currentPosition.speed=(currentPosition.speed*1.852);
     currentPosition.lastUpdated = new Date();
     //Sometimes the latitude and longiture are coming as 0, ignore the position
