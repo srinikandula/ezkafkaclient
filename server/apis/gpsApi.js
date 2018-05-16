@@ -255,7 +255,7 @@ function saveGPSPosition(currentLocation, accountSettings,lastLocation, callback
 }
 
 function updateTruckDeviceAndDevicePositions(currentLocation) {
-
+    console.log(" this is it "+  JSON.stringify(currentLocation));
     //save to device positions
     positionData=new devicePostions(currentLocation);
     positionData.save(function (err, updated) {
@@ -263,7 +263,7 @@ function updateTruckDeviceAndDevicePositions(currentLocation) {
             console.error('failed adding new device position')
         }else{
             if(currentLocation.totalDistance !== updated.totalDistance){
-                console.error("This is fucked up ...... "+ currentLocation.totalDistance  + "  "+ updated);
+                console.error("This is fucked up ...... "+ currentLocation.totalDistance  + "  "+ updated.totalDistance);
             }
             DeviceColl.update({imei:currentLocation.uniqueId},{$set:{"attrs.latestLocation.totalDistance":updated}},function (error, deviceSaveResponse) {
                 if(error){
