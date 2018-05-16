@@ -247,6 +247,7 @@ function saveGPSPosition(currentLocation, accountSettings,lastLocation, callback
                     console.error(" totalDistance is not found for "+ currentLocation.uniqueId + "   data:"+ JSON.stringify(lastLocation));
                     lastLocation.totalDistance = 0;
                 }
+                consloe.log("total distance for device "+ lastLocation.totalDistance +"   distance "+ currentLocation.distance);
                 currentLocation.totalDistance=lastLocation.totalDistance+currentLocation.distance;
             }
             updateTruckDeviceAndDevicePositions(currentLocation);
