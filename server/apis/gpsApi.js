@@ -265,7 +265,7 @@ function updateTruckDeviceAndDevicePositions(currentLocation) {
             if(currentLocation.totalDistance !== updated.totalDistance){
                 console.error("This is fucked up ...... "+ currentLocation.totalDistance  + "  "+ updated.totalDistance);
             }
-            DeviceColl.update({imei:currentLocation.uniqueId},{$set:{"attrs.latestLocation.totalDistance":updated}},function (error, deviceSaveResponse) {
+            DeviceColl.update({imei:currentLocation.uniqueId},{$set:{"attrs.latestLocation.totalDistance":currentLocation}},function (error, deviceSaveResponse) {
                 if(error){
                     console.error("Error saving latest location in to device "+ JSON.stringify(error))
                 } else {
@@ -276,7 +276,7 @@ function updateTruckDeviceAndDevicePositions(currentLocation) {
                     }
                 }
             });
-            TrucksColl.update({deviceId:currentLocation.uniqueId},{$set:{"attrs.latestLocation":updated}},function (error, truckSaveResponse) {
+            TrucksColl.update({deviceId:currentLocation.uniqueId},{$set:{"attrs.latestLocation":currentLocation}},function (error, truckSaveResponse) {
                 if(error){
                     console.error("Error saving latest location in to device")
                 } else {
