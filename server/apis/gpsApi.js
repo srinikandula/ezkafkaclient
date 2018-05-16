@@ -268,7 +268,10 @@ function updateTruckDeviceAndDevicePositions(currentLocation) {
         if(err){
             console.error('failed adding new device position')
         }else{
-            DeviceColl.update({imei:currentLocation.uniqueId},{$set:{"attrs.latestLocation":updated}},function (error, deviceSaveResponse) {
+            if(currentLocation.totalDistance !== updated.totalDistance){
+                console.error("THis is fucked up ......");
+            }
+            DeviceColl.update({imei:currentLocation.uniqueId},{$set:{"attrs.latestLocation.totalDistance":updated}},function (error, deviceSaveResponse) {
                 if(error){
                     console.error("Error saving latest location in to device")
                 } else {
