@@ -149,6 +149,9 @@ function findAccountSettingsForIMIE(currentPosition, callback) {
                     console.error("No device found for "+ JSON.stringify(deviceData));
                 });
             } else {
+                if(deviceData[0].attrs.latestLocation.totalDistance == 0) {
+                    console.error("error : "+ uniqueId +"  has 0 "+ JSON.stringify(deviceData[0].attrs.latestLocation));
+                }
                 //check for settings in accountSettigs cache
                 var settings = accountGPSSettings[deviceData[0].accountId]
                 if(settings) {
