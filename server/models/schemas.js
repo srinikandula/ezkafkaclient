@@ -121,40 +121,12 @@ var truckSchema = new mongoose.Schema({
     updatedBy: String,
     createdBy: String,
     status: Number,
-    attrs: {latestLocation: {}},
     // latestLocation:{type:ObjectId,ref:'devicePositions'},
     deviceId: String,
     lookingForLoad: { type: Boolean, default: false },
     isIdle:Boolean,
     isStopped:Boolean,
-    attrs: {
-        latestLocation: {
-            gprmc: String,
-            name: String,
-            uniqueId: String,
-            deviceId: String,
-            protocol: String,
-            deviceTime: Number,
-            fixTime: Number,
-            valid: Boolean,
-            location: {
-                type: {
-                    type: String,
-                    default: "Point"
-                },
-                coordinates: [Number] //[longitude(varies b/w -180 and 180 W/E), latitude(varies b/w -90 and 90 N/S)]
-            },
-            altitude: String,
-            speed: String,
-            course: String,
-            statusCode: String,
-            attributes: {},
-            address: String,
-            isIdle:Boolean,
-            isStopped:Boolean,
-            distance:{type:Number,default:0},
-            totalDistance:{type:Number,default:0}
-        }}
+    attrs: { latestLocation: {}}
 }, { timestamps: true });
 
 var tripSchema = new mongoose.Schema({
@@ -411,34 +383,7 @@ var deviceSchema = new mongoose.Schema({
     serialNumber: String,
     isActive: {type: Boolean, default: true},
     remarks: String,
-    attrs: {
-        latestLocation: {
-            gprmc: String,
-            name: String,
-            uniqueId: String,
-            deviceId: String,
-            protocol: String,
-            deviceTime: Number,
-            fixTime: Number,
-            valid: Boolean,
-            location: {
-                type: {
-                    type: String,
-                    default: "Point"
-                },
-                coordinates: [Number] //[longitude(varies b/w -180 and 180 W/E), latitude(varies b/w -90 and 90 N/S)]
-            },
-            altitude: String,
-            speed: String,
-            course: String,
-            statusCode: String,
-            attributes: {},
-            address: String,
-            isIdle:Boolean,
-            isStopped:Boolean,
-            distance:{type:Number,default:0},
-            totalDistance:{type:Number,default:0}
-        }}
+    attrs: {latestLocation: {}}
 }, {timestamps: true, versionKey: false});
 
 var secretKeys = new mongoose.Schema({
