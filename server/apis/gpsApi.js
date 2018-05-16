@@ -153,10 +153,9 @@ function findAccountSettingsForIMIE(currentPosition, callback) {
                 var settings = accountGPSSettings[deviceData[0].accountId]
                 if(settings) {
                     saveGPSPosition(currentPosition,settings, deviceData[0].attrs.latestLocation, function(saveResponse){
-                        console.log('save response');
+                        //console.log('save response');
                     });
                 } else {
-                    console.log('looking up account settings '+ deviceData[0].accountId);
                     gpsSettingsColl.findOne({accountId:ObjectId(deviceData[0].accountId)},{},function (err,gpsSettings) {
                         if(err){
                             console.error("error finding GPSSettings "+ JSON.stringify(err));
@@ -248,7 +247,6 @@ function saveGPSPosition(currentLocation, accountSettings,lastLocation, callback
                     lastLocation.totalDistance = 0;
                 }
                 currentLocation.totalDistance=parseFloat(lastLocation.totalDistance)+parseFloat(currentLocation.distance);
-
                 console.log("total distance for device "+ currentLocation.totalDistance +"   distance "+ currentLocation.distance +" old " + lastLocation.totalDistance);
             }
             if(currentLocation.totalDistance == 0){
@@ -257,7 +255,6 @@ function saveGPSPosition(currentLocation, accountSettings,lastLocation, callback
                 updateTruckDeviceAndDevicePositions(currentLocation);
             }
         }
-
 }
 
 function updateTruckDeviceAndDevicePositions(currentLocation) {
@@ -276,7 +273,7 @@ function updateTruckDeviceAndDevicePositions(currentLocation) {
                     if(deviceSaveResponse.nModified !== 1){
                         console.error('Error updating for device imei '+ JSON.stringify(updated));
                     } else {
-                        console.log('Device updated '+ JSON.stringify(deviceSaveResponse));
+                       // console.log('Device updated '+ JSON.stringify(deviceSaveResponse));
                     }
 
                 }
@@ -288,7 +285,7 @@ function updateTruckDeviceAndDevicePositions(currentLocation) {
                     if(truckSaveResponse.nModified !== 1){
                         console.error('Error updating for truck for deviceId '+ currentLocation.uniqueId);
                     } else {
-                        console.log('Truck updated ' + JSON.stringify(truckSaveResponse));
+                        //console.log('Truck updated ' + JSON.stringify(truckSaveResponse));
                     }
                 }
             });
