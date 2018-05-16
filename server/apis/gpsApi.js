@@ -256,7 +256,6 @@ function saveGPSPosition(currentLocation, accountSettings,lastLocation, callback
             } else {
                 updateTruckDeviceAndDevicePositions(currentLocation);
             }
-
         }
 
 }
