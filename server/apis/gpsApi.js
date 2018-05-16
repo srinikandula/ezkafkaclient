@@ -248,8 +248,7 @@ function saveGPSPosition(currentLocation, accountSettings,lastLocation, callback
                     lastLocation.totalDistance = 0;
                 }
                 currentLocation.totalDistance=parseFloat(lastLocation.totalDistance)+parseFloat(currentLocation.distance);
-                console.log("total distance for device "+ lastLocation.totalDistance +"   distance "+ currentLocation.distance);
-
+                console.log("total distance for device "+ currentLocation.totalDistance +"   distance "+ currentLocation.distance +" old " + lastLocation.totalDistance);
             }
             updateTruckDeviceAndDevicePositions(currentLocation);
         }
