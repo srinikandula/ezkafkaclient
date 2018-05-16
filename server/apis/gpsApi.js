@@ -149,6 +149,9 @@ function findAccountSettingsForIMIE(currentPosition, callback) {
                     console.error("No device found for "+ JSON.stringify(deviceData));
                 });
             } else {
+                if(deviceData[0].attrs.latestLocation.totalDistance == 0) {
+                    console.error("error : "+ uniqueId +"  has 0 "+ JSON.stringify(deviceData[0].attrs.latestLocation));
+                }
                 //check for settings in accountSettigs cache
                 var settings = accountGPSSettings[deviceData[0].accountId]
                 if(settings) {
@@ -163,11 +166,11 @@ function findAccountSettingsForIMIE(currentPosition, callback) {
                             if(gpsSettings&& gpsSettings._doc){
                                 accountGPSSettings[deviceData.accountId] = gpsSettings._doc;
                                 saveGPSPosition(currentPosition,gpsSettings._doc, deviceData[0].attrs.latestLocation, function(saveResponse){
-                                    console.log('save response');
+                                    //console.log('save response');
                                 });
                             } else {
                                 saveGPSPosition(currentPosition,{}, deviceData[0].attrs.latestLocation, function(saveResponse){
-                                    console.log('save response');
+                                    //console.log('save response');
                                 });
                             }
 
@@ -263,7 +266,7 @@ function updateTruckDeviceAndDevicePositions(currentLocation) {
     positionData=new devicePostions(currentLocation);
     positionData.save(function (err, updated) {
         if(err){
-            console.log('failed adding new device position')
+            console.error('failed adding new device position')
         }else{
             DeviceColl.update({imei:currentLocation.uniqueId},{$set:{"attrs.latestLocation":updated}},function (error, deviceSaveResponse) {
                 if(error){
