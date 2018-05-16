@@ -82,7 +82,8 @@ function resolveAddress(position, callback) {
  * @constructor
  */
 
-Gps.prototype.addDevicePositions = function (currentPosition, callback) {
+Gps.prototype.addDevicePositions = function (position, callback) {
+    var currentPosition = JSON.parse( JSON.stringify( position ) );
     var retObj = {
         status: false,
         messages: []
@@ -149,9 +150,6 @@ function findAccountSettingsForIMIE(currentPosition, callback) {
                     console.error("No device found for "+ JSON.stringify(deviceData));
                 });
             } else {
-                if(deviceData[0].attrs.latestLocation.totalDistance == 0) {
-                    console.error("error : "+ currentPosition.uniqueId +"  has 0 "+ JSON.stringify(deviceData[0].attrs.latestLocation));
-                }
                 //check for settings in accountSettigs cache
                 var settings = accountGPSSettings[deviceData[0].accountId]
                 if(settings) {
@@ -252,11 +250,7 @@ function saveGPSPosition(currentLocation, accountSettings,lastLocation, callback
                 currentLocation.totalDistance=parseFloat(lastLocation.totalDistance)+parseFloat(currentLocation.distance);
                 console.log("total distance for device "+ currentLocation.totalDistance +"   distance "+ currentLocation.distance +" old " + lastLocation.totalDistance);
             }
-            if(currentLocation.totalDistance == 0){
-                console.error(" fucking distance "+ currentLocation.uniqueId);
-            } else {
-                updateTruckDeviceAndDevicePositions(currentLocation);
-            }
+            updateTruckDeviceAndDevicePositions(currentLocation);
         }
 }
 
@@ -269,11 +263,11 @@ function updateTruckDeviceAndDevicePositions(currentLocation) {
             console.error('failed adding new device position')
         }else{
             if(currentLocation.totalDistance !== updated.totalDistance){
-                console.error("This is fucked up ...... "+ currentLocation.totalDistance  + "  "+ updated.totalDistance);
+                console.error("This is fucked up ...... "+ currentLocation.totalDistance  + "  "+ updated);
             }
             DeviceColl.update({imei:currentLocation.uniqueId},{$set:{"attrs.latestLocation.totalDistance":updated}},function (error, deviceSaveResponse) {
                 if(error){
-                    console.error("Error saving latest location in to device")
+                    console.error("Error saving latest location in to device "+ JSON.stringify(error))
                 } else {
                     if(deviceSaveResponse.nModified !== 1){
                         console.error('Error updating for device imei '+ JSON.stringify(updated));
