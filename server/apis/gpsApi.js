@@ -248,9 +248,15 @@ function saveGPSPosition(currentLocation, accountSettings,lastLocation, callback
                     lastLocation.totalDistance = 0;
                 }
                 currentLocation.totalDistance=parseFloat(lastLocation.totalDistance)+parseFloat(currentLocation.distance);
+
                 console.log("total distance for device "+ currentLocation.totalDistance +"   distance "+ currentLocation.distance +" old " + lastLocation.totalDistance);
             }
-            updateTruckDeviceAndDevicePositions(currentLocation);
+            if(currentLocation.totalDistance == 0){
+                console.error(" fucking distance "+ currentLocation.uniqueId);
+            } else {
+                updateTruckDeviceAndDevicePositions(currentLocation);
+            }
+
         }
 
 }
