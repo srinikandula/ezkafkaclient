@@ -207,13 +207,13 @@ function saveGPSPosition(currentLocation, accountSettings,lastLocation, callback
         }
 
         if(!lastLocation){ //if the device data is not available set it now
-            lastLocation = {};
+            lastLocation = currentLocation;
             lastLocation.isIdle = false;
             lastLocation.isStopped = false;
             lastLocation= currentLocation;
             lastLocation.lastUpdated = new Date();
             lastLocation.totalDistance=0;
-            updateTruckDeviceAndDevicePositions(lastLocation);
+            //updateTruckDeviceAndDevicePositions(lastLocation);
         } else { //if the latest location is available on the deivice then compare the current position with it to check if the vehicle is idle
             //no change in position co-ordinates, so it may idle or stoppped
             if(parseFloat(lastLocation.location.coordinates[0]) === parseFloat(currentLocation.location.coordinates[0]) &&
