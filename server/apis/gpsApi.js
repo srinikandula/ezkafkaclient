@@ -163,11 +163,11 @@ function findAccountSettingsForIMIE(currentPosition, callback) {
                             if(gpsSettings&& gpsSettings._doc){
                                 accountGPSSettings[deviceData.accountId] = gpsSettings._doc;
                                 saveGPSPosition(currentPosition,gpsSettings._doc, deviceData[0].attrs.latestLocation, function(saveResponse){
-                                    console.log('save response');
+                                    //console.log('save response');
                                 });
                             } else {
                                 saveGPSPosition(currentPosition,{}, deviceData[0].attrs.latestLocation, function(saveResponse){
-                                    console.log('save response');
+                                    //console.log('save response');
                                 });
                             }
 
@@ -263,7 +263,7 @@ function updateTruckDeviceAndDevicePositions(currentLocation) {
     positionData=new devicePostions(currentLocation);
     positionData.save(function (err, updated) {
         if(err){
-            console.log('failed adding new device position')
+            console.error('failed adding new device position')
         }else{
             DeviceColl.update({imei:currentLocation.uniqueId},{$set:{"attrs.latestLocation":updated}},function (error, deviceSaveResponse) {
                 if(error){
