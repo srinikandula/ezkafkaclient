@@ -269,7 +269,7 @@ function updateTruckDeviceAndDevicePositions(currentLocation) {
             console.error('failed adding new device position')
         }else{
             if(currentLocation.totalDistance !== updated.totalDistance){
-                console.error("THis is fucked up ......");
+                console.error("This is fucked up ...... "+ currentLocation.totalDistance  + "  "+ updated.totalDistance);
             }
             DeviceColl.update({imei:currentLocation.uniqueId},{$set:{"attrs.latestLocation.totalDistance":updated}},function (error, deviceSaveResponse) {
                 if(error){
@@ -280,7 +280,6 @@ function updateTruckDeviceAndDevicePositions(currentLocation) {
                     } else {
                        // console.log('Device updated '+ JSON.stringify(deviceSaveResponse));
                     }
-
                 }
             });
             TrucksColl.update({deviceId:currentLocation.uniqueId},{$set:{"attrs.latestLocation":updated}},function (error, truckSaveResponse) {
